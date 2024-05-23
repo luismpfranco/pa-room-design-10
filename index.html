@@ -24,16 +24,90 @@
 
          void main()
          {
-           gl_FragColor = texture2D( texture, fTexCoord );
+           gl_FragColor = texture2D( texture, fTexCoord);
          }
       </script>
 
       
    </head>
    <body>
-      <canvas id="gl-canvas" width="512" height="512">
+      <canvas id="gl-canvas" width="800" height="800">
          Sorry, but your browser does not support HTML5's canvas element.
       </canvas>
+
+      <form>
+         <select>
+            <option value="paralelepipedo" id="paralelepipedo">Paralelepípedo</option>
+            <option value="cubo" id="cubo">Cubo</option>
+            <option value="piramide" id="piramide">Pirâmide</option>
+         </select>
+         <br>
+         <br>
+         <label for="Altura">Altura</label>
+         <input type="text" id="altura" name="" value="">
+         <label for="Largura">Largura</label>
+         <input type="text" id="largura" name="" value="">
+         <label for="Profundidade">Profundidade</label>
+         <input type="text" id="profundidade" name="" value="">
+         <br>
+         <br>
+         <select>
+            <option value="cor">cor</option>
+            <input type="color" value="#ff0000"/>
+         </select>
+         <br><br>
+         <input type="submit" value="Adicionar Primitiva">
+      </form>
+
+      <form>
+         <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg, image/jpg, image/obj" />
+         <br>
+         <br>
+         <input type="submit" value="Adicionar Modelo">
+      </form>
+
+      <form>
+         <select>
+            <option value="">Par1</option>
+            <option value="">Par2</option>
+            <option value="">Par3</option>
+            <option value="">Par4</option>
+         </select>
+         <br>
+         <br>
+         <input type="submit" value="Manipular Objeto">
+      </form>
+
+      <form>
+         <label for="Posicao">Posição</label><br>
+         <label for="x_position">X</label>
+         <input type="text" id="x_position" name="" value="">
+         <label for="y_position">Y</label>
+         <input type="text" id="y_position" name="" value="">
+         <label for="z_position">Z</label>
+         <input type="text" id="z_position" name="" value="">
+         <br>
+         <br>
+         <label for="Direcao">Direção</label><br>
+         <label for="x_direction">X</label>
+         <input type="text" id="x_direction" name="" value="">
+         <label for="y_direction">Y</label>
+         <input type="text" id="y_direction" name="" value="">
+         <label for="z_direction">Z</label>
+         <input type="text" id="z_direction" name="" value="">
+         <br>
+         <br>
+         <label for="Profundidade">Cor</label><br>
+         <label for="r">R</label>
+         <input type="text" id="r" name="" value="">
+         <label for="g">G</label>
+         <input type="text" id="g" name="" value="">
+         <label for="b">B</label>
+         <input type="text" id="b" name="" value="">
+         <br>
+         <br>
+         <input type="submit" value="Adicionar luz">
+      </form>
 
       <button id="rotateX">Rotate X</button>
       <button id="rotateY">Rotate Y</button>

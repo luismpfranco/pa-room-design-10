@@ -1,9 +1,11 @@
 let pointsArray = [];
 let texCoordsArray = [];
+let vertices = [];
 
 let gl;
 let ctm;
 let modelViewMatrix;
+let canvas;
 
 let program;
 
@@ -21,16 +23,31 @@ window.onload = function () {
 }
 
 function init() {
-
+    
     // *** Get canvas ***
     const canvas = document.getElementById('gl-canvas');
 
     /** @type {WebGLRenderingContext} */ // ONLY FOR VS CODE
     gl = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
-    if (!gl) {
-        alert('WebGL not supported');
-        return;
-    }
+        if (!gl) {
+            alert('WebGL not supported');
+            return;
+        }
+
+        // Clear the canvas
+
+    // *** Set viewport
+    gl.viewport(0, 0, canvas.width, canvas.height)
+
+    // *** Set color to the canvas ***
+    gl.clearColor(0.333, 0.333, 0.333, 1.0)
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // *** Initialize vertex and fragment shader
+    let program = initShaders(gl, "vertex-shader", "fragment-shader");
+    gl.useProgram(program);
+
+    plane();
 
     // *** Computes the cube ***
     cube();
@@ -71,6 +88,7 @@ function init() {
     modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
     ctm = mat4.create();
 
+    
     // Set the image for the texture
     let image = new Image();
     image.src = 'texture.png'
@@ -91,7 +109,45 @@ function init() {
 
     // *** Render ***
     render();
+}
 
+function plane() {
+    // Define the rectangle's vertices (4 corners)
+    vertices = [
+        0.0,  800.0,  0.0,   // xyz position
+        0.0,  0.0,  1.0,   // rgb color
+
+        800.0,  800.0,  0.0,
+        0.0,  1.0,  0.0,
+
+        800.0,  0.0,  0.0,
+        0.0,  1.0,  0.0,
+
+        0.0,  0.0,  0.0,
+        1.0,  1.0,  1.0,
+
+        800.0,  0.0,  0.0,
+        1.0,  1.0,  1.0,
+
+        0.0,  800.0,  0.0,
+        1.0,  0.0,  0.0,
+
+        800.0,  800.0,  0.0,
+        1.0,  0.0,  0.0
+    ];
+
+    // Send position data to the GPU
+    let vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Define the form of the data
+    let vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
+
+    // Draw the plane
+    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
 }
 
 function cube() {
@@ -175,14 +231,13 @@ function cube() {
         1, 1,
         1, 0,
     ];
-
-
 }
 
 function render() {
     // Clear the canvas
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    /*
     // Apply rotation
     switch (axis) {
         case xAxis:
@@ -196,7 +251,7 @@ function render() {
             break;
         default:
             return -1
-    }
+    }*/
 
     // Transfer the information to the model viewer
     gl.uniformMatrix4fv(modelViewMatrix, false, ctm);
