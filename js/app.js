@@ -41,7 +41,6 @@ mesh.rotation.y = Math.PI / 2.5;
 camera.position.set(6, 0, 0);
 camera.lookAt(0, 0, 0);
 
-let paralelepiped;
 let paralelepipedEdges;
 
 function createParallelepiped(width, height, depth, position, color) {
@@ -116,8 +115,14 @@ function onClick(event) {
 }
 
 function removeObject() {
-    if (selectedObject && selectedObject !== mesh && selectedObject !== cubeLineSegments) {
-        scene.remove(selectedObject);
+    let objectToRemove = selectedObject;
+
+    if (selectedObject instanceof THREE.LineSegments) {
+        objectToRemove = selectedObject.parent;
+    }
+
+    if (objectToRemove && objectToRemove !== mesh && objectToRemove !== cubeLineSegments) {
+        scene.remove(objectToRemove);
         selectedObject = null;
     }
 }
