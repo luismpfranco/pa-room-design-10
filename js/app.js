@@ -1,275 +1,198 @@
-let pointsArray = [];
-let texCoordsArray = [];
-let vertices = [];
-
-let gl;
-let ctm;
-let modelViewMatrix;
-let canvas;
-
-let program;
-
-const angle = 0.02; // rotation in radians
-
-// constants for rotating
-let xAxis = 0;
-let yAxis = 1;
-let zAxis = 2;
-let axis = xAxis;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xffffff, 1);
+document.body.appendChild(renderer.domElement);
 
 
-window.onload = function () {
-    init();
+const material = new THREE.MeshBasicMaterial({ color: 0x808080 });
+const vertices = new Float32Array([
+
+    -2, -2,  2, // 0
+    2, -2,  2, // 1
+    2, -2, -2, // 2
+    -2, -2, -2, // 3
+
+    -2,  2, -2, // 4
+    2,  2, -2, // 5
+
+    -2,  2,  2, // 6
+]);
+const indices = [
+
+    0, 1, 2,
+    0, 2, 3,
+
+    3, 2, 5,
+    3, 5, 4,
+
+    0, 3, 4,
+    0, 4, 6
+];
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+geometry.setIndex(indices);
+geometry.computeVertexNormals();
+const mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
+
+const cubeEdges = new THREE.EdgesGeometry(geometry);
+const cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+const cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);
+mesh.add(cubeLineSegments);
+
+mesh.rotation.y = Math.PI / 2.5;
+
+camera.position.set(6, 0, 0);
+camera.lookAt(0, 0, 0);
+
+function createParallelepiped(width, height, depth, position, color) {
+    const halfHeight = height / 2;
+    const halfWidth = width / 2;
+    const halfDepth = depth / 2;
+
+    const minPosition = {
+        x: -cubeSize / 2 + halfWidth,
+        y: -cubeSize / 2 + halfHeight,
+        z: -cubeSize / 2 + halfDepth
+    };
+
+    const maxPosition = {
+        x: cubeSize / 2 - halfWidth,
+        y: cubeSize / 2 - halfHeight,
+        z: cubeSize / 2 - halfDepth
+    };
+
+    const clampedPosition = {
+        x: Math.min(Math.max(position.x, minPosition.x), maxPosition.x),
+        y: Math.min(Math.max(position.y, minPosition.y), maxPosition.y),
+        z: Math.min(Math.max(position.z, minPosition.z), maxPosition.z)
+    };
+
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    const parallelepiped = new THREE.Mesh(geometry, material);
+    parallelepiped.position.set(clampedPosition.x, clampedPosition.y + halfHeight, clampedPosition.z);
+    scene.add(parallelepiped);
+
+    // Adicionando bordas
+    /*const edges = new THREE.EdgesGeometry(geometry);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+    lineSegments.position.set(clampedPosition.x, clampedPosition.y + halfHeight, clampedPosition.z);
+    scene.add(lineSegments);*/
 }
 
-function init() {
-    
-    // *** Get canvas ***
-    const canvas = document.getElementById('gl-canvas');
+const cubeSize = 2;
+createParallelepiped(1.5, 1, 0.5, { x: 0, y: -2, z: -cubeSize + 0.5 / 2 + 0.01 }, 0x0000ff); // Paralelepípedo azul encostado à parede do cubo maior
 
-    /** @type {WebGLRenderingContext} */ // ONLY FOR VS CODE
-    gl = canvas.getContext('webgl') || canvas.getContext("experimental-webgl");
-        if (!gl) {
-            alert('WebGL not supported');
-            return;
-        }
+animate();
 
-        // Clear the canvas
+let selectedObject = null;
 
-    // *** Set viewport
-    gl.viewport(0, 0, canvas.width, canvas.height)
+renderer.domElement.addEventListener('click', onClick, false);
 
-    // *** Set color to the canvas ***
-    gl.clearColor(0.333, 0.333, 0.333, 1.0)
-    gl.clear(gl.COLOR_BUFFER_BIT);
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+function onClick(event) {
+    event.preventDefault();
 
-    // *** Initialize vertex and fragment shader
-    let program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    plane();
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
 
-    // *** Computes the cube ***
-    cube();
+    const intersects = raycaster.intersectObjects(scene.children, true);
 
-    // *** Set viewport ***
-    gl.viewport(0, 0, canvas.width, canvas.height)
-
-    // *** Set color to the canvas ***
-    gl.clearColor(1.0, 1.0, 1.0, 1.0)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-
-    // *** Initialize vertex and fragment shader ***
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
-
-    // *** Send position data to the GPU ***
-    let vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointsArray), gl.STATIC_DRAW);
-
-    // *** Define the form of the data ***
-    let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.enableVertexAttribArray(vPosition);
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-
-    // *** Send texture data to the GPU ***
-    let tBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoordsArray), gl.STATIC_DRAW);
-
-    // *** Define the form of the data ***
-    let vTexCoord = gl.getAttribLocation(program, "vTexCoord");
-    gl.enableVertexAttribArray(vTexCoord);
-    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
-
-    // *** Get a pointer for the model viewer
-    modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
-    ctm = mat4.create();
-
-    
-    // Set the image for the texture
-    let image = new Image();
-    image.src = 'texture.png'
-    image.onload = function () {
-        configureTexture(image);
+    if (intersects.length > 0) {
+        selectedObject = intersects[0].object;
+    } else {
+        selectedObject = null;
     }
-
-    // *** Create the event listeners for the buttons
-    document.getElementById("rotateX").onclick = function () {
-        axis = xAxis;
-    };
-    document.getElementById("rotateY").onclick = function () {
-        axis = yAxis;
-    };
-    document.getElementById("rotateZ").onclick = function () {
-        axis = zAxis;
-    };
-
-    // *** Render ***
-    render();
 }
 
-function plane() {
-    // Define the rectangle's vertices (4 corners)
-    vertices = [
-        0.0,  800.0,  0.0,   // xyz position
-        0.0,  0.0,  1.0,   // rgb color
-
-        800.0,  800.0,  0.0,
-        0.0,  1.0,  0.0,
-
-        800.0,  0.0,  0.0,
-        0.0,  1.0,  0.0,
-
-        0.0,  0.0,  0.0,
-        1.0,  1.0,  1.0,
-
-        800.0,  0.0,  0.0,
-        1.0,  1.0,  1.0,
-
-        0.0,  800.0,  0.0,
-        1.0,  0.0,  0.0,
-
-        800.0,  800.0,  0.0,
-        1.0,  0.0,  0.0
-    ];
-
-    // Send position data to the GPU
-    let vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    // Define the form of the data
-    let vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-
-    // Draw the plane
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+function removeObject() {
+    if (selectedObject && selectedObject !== mesh && selectedObject !== cubeLineSegments) {
+        scene.remove(selectedObject);
+        selectedObject = null;
+    }
 }
 
-function cube() {
+function changeColor() {
+    if (selectedObject && selectedObject !== mesh && selectedObject !== cubeLineSegments) {
+        const selectedColor = document.getElementById('colorPicker').value;
 
-    // Specify the coordinates to draw
-    pointsArray = [
-        -.5, 0.5, 0.5,
-        -.5, -.5, 0.5,
-        0.5, -.5, 0.5,
-        -.5, 0.5, 0.5,
-        0.5, -.5, 0.5,
-        0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        0.5, -.5, 0.5,
-        0.5, -.5, -.5,
-        0.5, 0.5, 0.5,
-        0.5, -.5, -.5,
-        0.5, 0.5, -.5,
-        0.5, -.5, 0.5,
-        -.5, -.5, 0.5,
-        -.5, -.5, -.5,
-        0.5, -.5, 0.5,
-        -.5, -.5, -.5,
-        0.5, -.5, -.5,
-        0.5, 0.5, -.5,
-        -.5, 0.5, -.5,
-        -.5, 0.5, 0.5,
-        0.5, 0.5, -.5,
-        -.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -.5, -.5, -.5,
-        -.5, 0.5, -.5,
-        0.5, 0.5, -.5,
-        -.5, -.5, -.5,
-        0.5, 0.5, -.5,
-        0.5, -.5, -.5,
-        -.5, 0.5, -.5,
-        -.5, -.5, -.5,
-        -.5, -.5, 0.5,
-        -.5, 0.5, -.5,
-        -.5, -.5, 0.5,
-        -.5, 0.5, 0.5,
-    ];
+        const newColor = new THREE.Color(selectedColor);
 
-    // 
-    texCoordsArray = [
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-        0, 0,
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 1,
-        1, 0,
-    ];
+        selectedObject.material.color = newColor;
+    }
 }
 
-function render() {
-    // Clear the canvas
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+function resizeObject() {
+    let isResizing = false;
 
-    /*
-    // Apply rotation
-    switch (axis) {
-        case xAxis:
-            mat4.rotateX(ctm, ctm, angle);
+    document.getElementById('resizeObject').addEventListener('click', function() {
+        isResizing = true;
+    });
+
+    renderer.domElement.addEventListener('click', function(event) {
+        if (isResizing && selectedObject) {
+            const direction = new THREE.Vector3().subVectors(mousePosition, selectedObject.position).normalize();
+
+            const newPosition = new THREE.Vector3().copy(selectedObject.position).addScaledVector(direction, 0.1);
+
+            const cubeSize = 2;
+            const minPosition = new THREE.Vector3(-cubeSize / 2, -cubeSize / 2, -cubeSize / 2);
+            const maxPosition = new THREE.Vector3(cubeSize / 2, cubeSize / 2, cubeSize / 2);
+            newPosition.clamp(minPosition, maxPosition);
+
+            selectedObject.position.copy(newPosition);
+        }
+    });
+
+    renderer.domElement.addEventListener('mousemove', function(event) {
+        if (isResizing) {
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersection = raycaster.intersectObjects(scene.children, true)[0];
+            if (intersection) {
+                mousePosition.copy(intersection.point);
+            }
+        }
+    });
+}
+
+function handleKeyPress(event) {
+    if (!selectedObject) return;
+
+    switch (event.keyCode) {
+        case 37: // ←
+            selectedObject.position.x -= 0.1;
             break;
-        case yAxis:
-            mat4.rotateY(ctm, ctm, angle);
+        case 38: // ↑
+            selectedObject.position.y += 0.1;
             break;
-        case zAxis:
-            mat4.rotateZ(ctm, ctm, angle);
+        case 39:
+            selectedObject.position.x += 0.1;
             break;
-        default:
-            return -1
-    }*/
-
-    // Transfer the information to the model viewer
-    gl.uniformMatrix4fv(modelViewMatrix, false, ctm);
-
-    // Draw the triangles
-    gl.drawArrays(gl.TRIANGLES, 0, pointsArray.length / 3);
-
-    // Make the new frame
-    requestAnimationFrame(render);
-}
-
-function configureTexture(image) {
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+        case 40:
+            selectedObject.position.y -= 0.1;
+            break;
+        case 33:
+            selectedObject.position.z += 0.1;
+            break;
+        case 34:
+            selectedObject.position.z -= 0.1;
+            break;
+    }
 }
