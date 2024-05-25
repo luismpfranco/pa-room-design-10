@@ -4,19 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto de Quarto em Three.js</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #ffffff;
+        }
+        #canvas-container {
+            border: 1px solid black;
+            margin: 10px auto 0px;
+            width: 800px;
+            height: 800px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: content-box;
+        }
+        input[type="text"] {
+            border-radius: 7px;
+            width: 50px;
+            height: 50px;
+        }
+        input[type="button"]{
+            border: 1px solid black;
+        }
+        .form-label{
+            color: #696969;
+        }
+        #exampleColorInput{
+            width: 60px;
+            height: 50px;
+        }
+        .form-select{
+            border-radius: 5px;
+            color: #6a6a6a;
+            background-color: #e9e9e9;
+        }
+        #cor{
+            margin-top: 10px;
+        }
+        .btn-primary{
+            border: 1px solid black;
+            border-radius: 12px;
+            margin-top: 10px;
+            height: 50px;
+        }
+        #inputGroupSelect{
+            margin-top: 50px;
+        }
+        .line1{
+            border-right: 1px solid #CDCDCD;
+            border-left: 1px solid #CDCDCD;
+        }
+        label{
+            color: #696969;
         }
     </style>
     <script src="js/jscolor.js"></script>
 </head>
 <body>
+<div id="canvas-container"></div>
 <script src="js/three.js"></script>
 <script src="js/app.js"></script>
-<button onclick="removeObject()">Remover</button>
-<button onclick="changeColor()">Alterar Cor</button>
-<input data-jscolor="" class="jscolor" id="colorPicker" value="#ff0000">
-<button onclick="resizeObject()">Redimensionar</button>
+<div style="width: 800px; border: 1px solid black; margin: 0 auto; box-sizing: content-box">
+    <div style="padding: 10px;">
+        <button onclick="removeObject()">Remover</button>
+        <button onclick="changeColor()">Alterar Cor</button>
+        <input data-jscolor="" class="jscolor" id="colorPicker" value="#ff0000">
+        <button onclick="resizeObject()">Redimensionar</button>
+        <br><br>
+
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group mb-3">
+                    <select class="form-select" id="inputGroupSelect02">
+                        <option value="c">Cubo</option>
+                        <option value="p">Paralelepípedo</option>
+                    </select>
+                </div>
+                <div class="a-l-p mb-3 row">
+                    <div class="col-3">
+                        <label for="exampleFormControlInput1" class="form-label">Altura</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput1">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput2" class="form-label">Largura</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput2">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput3" class="form-label">Profundidade</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput3">
+                    </div>
+                </div>
+                <div class="escolher-cor row">
+                    <div class="col-3">
+                        <select class="form-select" id="cor">
+                            <option value="color">cor</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <input type="color" class="form-control form-control-color" id="exampleColorInput" value="#563d7c" title="Choose your color">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary">Adicionar Primitiva</button>
+            </div>
+            <div class="col-4 line1">
+                <div class="mb-3 d-flex">
+                    <input type="file" id="file" name="file" />
+                </div>
+                <button type="button" class="btn btn-primary mb-3">Adicionar Modelo</button><hr>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="inputGroupSelect">
+                        <option value="par1">Par1</option>
+                        <option value="par2">Par2</option>
+                        <option value="par3">Par3</option>
+                        <option value="par4">Par4</option>
+                        <option value="par5">Par5</option>
+                        <option value="par6">Par6</option>
+                        <option value="par7">Par7</option>
+                        <option value="par8">Par8</option>
+                        <option value="par9">Par9</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary">Manipular Objeto</button>
+            </div>
+            <div class="col-4">
+                <label>Posição</label>
+                <div class="p-d-c mb-3 row">
+                    <div class="col-3">
+                        <label for="exampleFormControlInput4" class="form-label">x</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput4">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput5" class="form-label">y</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput5">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput6" class="form-label">z</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput6">
+                    </div>
+                </div>
+
+                <label>Direção</label>
+                <div class="p-d-c mb-3 row">
+                    <div class="col-3">
+                        <label for="exampleFormControlInput7" class="form-label">x</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput7">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput8" class="form-label">y</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput8">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput9" class="form-label">z</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput9">
+                    </div>
+                </div>
+
+                <label>Cor</label>
+                <div class="p-d-c mb-3 row">
+                    <div class="col-3">
+                        <label for="exampleFormControlInput10" class="form-label">R</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput10">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput11" class="form-label">G</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput11">
+                    </div>
+                    <div class="col-3">
+                        <label for="exampleFormControlInput12" class="form-label">B</label>
+                        <input type="text" class="form-control" id="exampleFormControlInput12">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary">Adicionar Luz</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
