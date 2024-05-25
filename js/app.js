@@ -5,28 +5,22 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1);
 document.body.appendChild(renderer.domElement);
 
-
+// Adicionar chão e paredes
 const material = new THREE.MeshBasicMaterial({ color: 0x808080 });
 const vertices = new Float32Array([
-
     -2, -2,  2, // 0
     2, -2,  2, // 1
     2, -2, -2, // 2
     -2, -2, -2, // 3
-
     -2,  2, -2, // 4
     2,  2, -2, // 5
-
     -2,  2,  2, // 6
 ]);
 const indices = [
-
     0, 1, 2,
     0, 2, 3,
-
     3, 2, 5,
     3, 5, 4,
-
     0, 3, 4,
     0, 4, 6
 ];
@@ -46,6 +40,9 @@ mesh.rotation.y = Math.PI / 2.5;
 
 camera.position.set(6, 0, 0);
 camera.lookAt(0, 0, 0);
+
+let paralelepiped;
+let paralelepipedEdges;
 
 function createParallelepiped(width, height, depth, position, color) {
     const halfHeight = height / 2;
@@ -77,15 +74,16 @@ function createParallelepiped(width, height, depth, position, color) {
     scene.add(parallelepiped);
 
     // Adicionando bordas
-    /*const edges = new THREE.EdgesGeometry(geometry);
+    const edges = new THREE.EdgesGeometry(geometry);
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
     const lineSegments = new THREE.LineSegments(edges, lineMaterial);
-    lineSegments.position.set(clampedPosition.x, clampedPosition.y + halfHeight, clampedPosition.z);
-    scene.add(lineSegments);*/
+    parallelepiped.add(lineSegments);
+
+    return { parallelepiped, lineSegments };
 }
 
 const cubeSize = 2;
-createParallelepiped(1.5, 1, 0.5, { x: 0, y: -2, z: -cubeSize + 0.5 / 2 + 0.01 }, 0x0000ff); // Paralelepípedo azul encostado à parede do cubo maior
+({ parallelepiped, lineSegments: paralelepipedEdges } = createParallelepiped(1.5, 1, 0.5, { x: 0, y: -2, z: -cubeSize + 0.5 / 2 + 0.01 }, 0x0000ff));
 
 animate();
 
@@ -97,6 +95,7 @@ function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
+
 function onClick(event) {
     event.preventDefault();
 
@@ -124,12 +123,16 @@ function removeObject() {
 }
 
 function changeColor() {
-    if (selectedObject && selectedObject !== mesh && selectedObject !== cubeLineSegments) {
+    let objectToChange = selectedObject;
+
+    if (selectedObject instanceof THREE.LineSegments) {
+        objectToChange = selectedObject.parent;
+    }
+
+    if (objectToChange && objectToChange !== mesh){
         const selectedColor = document.getElementById('colorPicker').value;
-
         const newColor = new THREE.Color(selectedColor);
-
-        selectedObject.material.color = newColor;
+        objectToChange.material.color = newColor;
     }
 }
 
@@ -176,10 +179,10 @@ function handleKeyPress(event) {
     if (!selectedObject) return;
 
     switch (event.keyCode) {
-        case 37: // ←
+        case 37:
             selectedObject.position.x -= 0.1;
             break;
-        case 38: // ↑
+        case 38:
             selectedObject.position.y += 0.1;
             break;
         case 39:
