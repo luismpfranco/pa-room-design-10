@@ -278,28 +278,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleKeyPress(event) {
-        if (!selectedObject || selectedObject === mesh) return;
+        const moveDistance = 0.1;
 
-        switch (event.key) {
-            case "ArrowLeft":
-                selectedObject.position.x -= 0.1;
-                break;
-            case "ArrowUp":
-                selectedObject.position.z += 0.1;
-                break;
-            case "ArrowRight":
-                selectedObject.position.x += 0.1;
-                break;
-            case "ArrowDown":
-                selectedObject.position.z -= 0.1;
-                break;
-            case 9:
-                selectedObject.position.y += 0.1;
-                break;
-            case 3:
-                selectedObject.position.y -= 0.1;
-                break;
+        if (selectedObject && selectedObject !== mesh) {
+            switch (event.key) {
+                case "ArrowLeft":
+                    selectedObject.position.x -= moveDistance;
+                    break;
+                case "ArrowUp":
+                    selectedObject.position.z += moveDistance;
+                    break;
+                case "ArrowRight":
+                    selectedObject.position.x += moveDistance;
+                    break;
+                case "ArrowDown":
+                    selectedObject.position.z -= moveDistance;
+                    break;
+            }
+        } else {
+            switch (event.key) {
+                case "ArrowLeft":
+                case "a":
+                case "A":
+                    moveCamera(-moveDistance, 0, 0);
+                    break;
+                case "ArrowRight":
+                case "d":
+                case "D":
+                    moveCamera(moveDistance, 0, 0);
+                    break;
+                case "ArrowUp":
+                case "w":
+                case "W":
+                    moveCamera(0, 0, -moveDistance);
+                    break;
+                case "ArrowDown":
+                case "s":
+                case "S":
+                    moveCamera(0, 0, moveDistance);
+                    break;
+                case "q":
+                case "Q":
+                    moveCamera(0, moveDistance, 0);
+                    break;
+                case "r":
+                case "R":
+                    moveCamera(0, -moveDistance, 0);
+                    break;
+            }
         }
+    }
+
+    function moveCamera(x, y, z) {
+        camera.position.x += x;
+        camera.position.y += y;
+        camera.position.z += z;
+        camera.lookAt(scene.position);
     }
 
     document.addEventListener('keydown', handleKeyPress);
