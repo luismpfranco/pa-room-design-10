@@ -435,7 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = renderer.domElement.getBoundingClientRect();
         const mouse = {
             x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
-            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1,
+            z: camera.position.z
         };
 
         const raycaster = new THREE.Raycaster();
@@ -443,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const intersects = raycaster.intersectObjects(scene.children, true);
         if (intersects.length > 0) {
-            camera.position.set(x, y, z);
+            selectedObject = intersects[0].object;
         }
     });
 
