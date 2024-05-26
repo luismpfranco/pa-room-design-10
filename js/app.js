@@ -1,264 +1,255 @@
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(800, 800);
-renderer.setClearColor(0xffffff, 1);
-document.getElementById('canvas-container').appendChild(renderer.domElement);
+document.addEventListener('DOMContentLoaded', () => {
+    const objectSelect = document.getElementById('primitiveSelect');
+    const addPrimitiveButton = document.getElementById('addPrimitive');
+    const addModelButton = document.getElementById('addModel');
+    const manipulateObjectButton = document.getElementById('manipulateObject');
+    const removeObjectButton = document.getElementById('removeObject');
+    const translateObjectButton = document.getElementById('translateObject');
+    const resizeObjectButton = document.getElementById('resizeObject');
+    const changeColorButton = document.getElementById('changeColor');
+    const rotateObjectButton = document.getElementById('rotateObject');
 
-const maxPrimitives = 10;
-let currentPrimitives = 0;
-
-const cubeSize = 2;
-
-camera.position.set(5, 0, 1);
-camera.lookAt(0, 0, 0);
-
-function createMesh(color) {
-    const material = new THREE.MeshBasicMaterial({ color });
-    const vertices = new Float32Array([
-        -2, -2,  2, // 0
-        2, -2,  2, // 1
-        2, -2, -2, // 2
-        -2, -2, -2, // 3
-        -2,  2, -2, // 4
-        2,  2, -2, // 5
-        -2,  2,  2, // 6,
-    ]);
-    const indices = [
-        0, 1, 2,
-        0, 2, 3,
-        3, 2, 5,
-        3, 5, 4,
-        0, 3, 4,
-        0, 4, 6
-    ];
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-    const cubeEdges = new THREE.EdgesGeometry(geometry);
-    const cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);
-    mesh.add(cubeLineSegments);
-    mesh.rotation.y = Math.PI / 2.5;
-    return mesh;
-}
-
-function createBox(width, height, depth, color) {
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = new THREE.MeshBasicMaterial({ color: color });
-    const box = new THREE.Mesh(geometry, material);
-
-    const edges = new THREE.EdgesGeometry(geometry);
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
-    box.add(lineSegments);
-
-    return box;
-}
-
-function createParallelepiped(width, height, depth, color) {
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = new THREE.MeshBasicMaterial({ color: color });
-    const parallelepiped = new THREE.Mesh(geometry, material);
-
-    const edges = new THREE.EdgesGeometry(geometry);
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
-    parallelepiped.add(lineSegments);
-
-    return parallelepiped;
-}
-
-function clampPosition(position, width, height, depth) {
-    const halfWidth = width / 2;
-    const halfHeight = height / 2;
-    const halfDepth = depth / 2;
-
-    const minPosition = {
-        x: -cubeSize / 2 + halfWidth,
-        y: -cubeSize / 2 + halfHeight,
-        z: -cubeSize / 2 + halfDepth
-    };
-
-    const maxPosition = {
-        x: cubeSize / 2 - halfWidth,
-        y: cubeSize / 2 - halfHeight,
-        z: cubeSize / 2 - halfDepth
-    };
-
-    return {
-        x: Math.min(Math.max(position.x, minPosition.x), maxPosition.x),
-        y: Math.min(Math.max(position.y, minPosition.y), maxPosition.y),
-        z: Math.min(Math.max(position.z, minPosition.z), maxPosition.z)
-    };
-}
-
-function addPrimitive() {
-    if (currentPrimitives >= maxPrimitives) {
-        alert('Número máximo de primitivas atingido');
+    if (!objectSelect) {
+        console.error('Element with id "primitiveSelect" not found.');
         return;
     }
 
-    const type = document.getElementById('primitiveType').value;
-    const width = parseFloat(document.getElementById('width').value) || 1;
-    const height = parseFloat(document.getElementById('height').value) || 1;
-    const depth = parseFloat(document.getElementById('depth').value) || 1;
-    const color = document.getElementById('exampleColorInput').value;
-    const posX = parseFloat(document.getElementById('posX').value) || 0;
-    const posY = parseFloat(document.getElementById('posY').value) || 0;
-    const posZ = parseFloat(document.getElementById('posZ').value) || 0;
-    const rotX = parseFloat(document.getElementById('rotX').value) || 0;
-    const rotY = parseFloat(document.getElementById('rotY').value) || 0;
-    const rotZ = parseFloat(document.getElementById('rotZ').value) || 0;
+    addPrimitiveButton.addEventListener('click', addPrimitive);
+    //addModelButton.addEventListener('click', addModel);
+    manipulateObjectButton.addEventListener('click', manipulateObject);
+    removeObjectButton.addEventListener('click', removeObject);
+    translateObjectButton.addEventListener('click', translateObject);
+    resizeObjectButton.addEventListener('click', resizeObject);
+    changeColorButton.addEventListener('click', changeColor);
+    rotateObjectButton.addEventListener('click', rotateObject);
 
-    const position = clampPosition({ x: posX, y: posY, z: posZ }, width, height, depth);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(800, 800);
+    renderer.setClearColor(0xffffff, 1);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    let primitive;
-    if (type === 'cube') {
-        primitive = createBox(width, height, depth, color);
-    } else if (type === 'parallelepiped') {
-        primitive = createParallelepiped(width, height, depth, color);
+    const maxPrimitives = 10;
+    let currentPrimitives = 0;
+    const cubeSize = 2;
+
+    camera.position.set(5, 0, 1);
+    camera.lookAt(0, 0, 0);
+
+    function createMesh(color) {
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        const vertices = new Float32Array([
+            -2, -2,  2, // 0
+            2, -2,  2, // 1
+            2, -2, -2, // 2
+            -2, -2, -2, // 3
+            -2,  2, -2, // 4
+            2,  2, -2, // 5
+            -2,  2,  2, // 6,
+        ]);
+        const indices = [
+            0, 1, 2,
+            0, 2, 3,
+            3, 2, 5,
+            3, 5, 4,
+            0, 3, 4,
+            0, 4, 6
+        ];
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geometry.setIndex(indices);
+        geometry.computeVertexNormals();
+        const mesh = new THREE.Mesh(geometry, material);
+        const cubeEdges = new THREE.EdgesGeometry(geometry);
+        const cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        const cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);
+        mesh.add(cubeLineSegments);
+        mesh.rotation.y = Math.PI / 2.5;
+        return mesh;
     }
 
-    primitive.position.set(position.x, position.y, position.z);
-    primitive.rotation.set(rotX, rotY, rotZ);
+    function createBox(width, height, depth, color) {
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        const box = new THREE.Mesh(geometry, material);
 
-    const boundingBox = new THREE.Box3().setFromObject(primitive);
-    const meshBoundingBox = new THREE.Box3().setFromObject(mesh);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+        box.add(lineSegments);
 
-    if (!meshBoundingBox.containsBox(boundingBox)) {
-        alert('Primitiva fora do cubo maior');
-        return;
+        return box;
     }
 
-    scene.add(primitive);
-    currentPrimitives++;
-}
+    function createParallelepiped(width, height, depth, color) {
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        const parallelepiped = new THREE.Mesh(geometry, material);
 
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
+        const edges = new THREE.EdgesGeometry(geometry);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+        parallelepiped.add(lineSegments);
 
-let mesh = createMesh(0x808080);
-parallelepiped = createParallelepiped(1.5, 1, 0.5, 0x0000ff);
-scene.add(parallelepiped);
-animate();
+        return parallelepiped;
+    }
 
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambientLight);
 
-let selectedObject = null;
+    function clampPosition(position, width, height, depth) {
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        const halfDepth = depth / 2;
 
-renderer.domElement.addEventListener('click', onClick, false);
+        const minPosition = {
+            x: -cubeSize / 2 + halfWidth,
+            y: -cubeSize / 2 + halfHeight,
+            z: -cubeSize / 2 + halfDepth
+        };
 
+        const maxPosition = {
+            x: cubeSize / 2 - halfWidth,
+            y: cubeSize / 2 - halfHeight,
+            z: cubeSize / 2 - halfDepth
+        };
 
-function onClick(event) {
-    event.preventDefault();
+        return {
+            x: Math.min(Math.max(position.x, minPosition.x), maxPosition.x),
+            y: Math.min(Math.max(position.y, minPosition.y), maxPosition.y),
+            z: Math.min(Math.max(position.z, minPosition.z), maxPosition.z)
+        };
+    }
 
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+    let selectedObject = null;
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(scene.children, true);
-
-    if (intersects.length > 0) {
-        selectedObject = intersects[0].object;
-
-        if (selectedObject instanceof THREE.LineSegments) {
-            selectedObject = selectedObject.parent;
+    function addPrimitive() {
+        if (currentPrimitives >= maxPrimitives) {
+            alert('Número máximo de primitivas atingido');
+            return;
         }
 
-        const boundingBox = new THREE.Box3().setFromObject(mesh);
-        if (!boundingBox.containsPoint(selectedObject.position)) {
-            selectedObject = null;
+        const type = document.getElementById('primitiveType').value;
+        const width = parseFloat(document.getElementById('width').value) || 1;
+        const height = parseFloat(document.getElementById('height').value) || 1;
+        const depth = parseFloat(document.getElementById('depth').value) || 1;
+        const color = document.getElementById('exampleColorInput').value;
+        const posX = parseFloat(document.getElementById('posX').value) || 0;
+        const posY = parseFloat(document.getElementById('posY').value) || 0;
+        const posZ = parseFloat(document.getElementById('posZ').value) || 0;
+        const rotX = parseFloat(document.getElementById('rotX').value) || 0;
+        const rotY = parseFloat(document.getElementById('rotY').value) || 0;
+        const rotZ = parseFloat(document.getElementById('rotZ').value) || 0;
+
+        const position = clampPosition({ x: posX, y: posY, z: posZ }, width, height, depth);
+
+        let primitive;
+        if (type === 'cube') {
+            primitive = createBox(width, height, depth, color);
+        } else if (type === 'parallelepiped') {
+            primitive = createParallelepiped(width, height, depth, color);
         }
-    } else {
-        selectedObject = null;
-    }
-}
 
-function removeObject() {
-    if (selectedObject && selectedObject !== mesh) {
-        scene.remove(selectedObject);
-        selectedObject = null;
-    }
-}
+        primitive.position.set(position.x, position.y, position.z);
+        primitive.rotation.set(rotX, rotY, rotZ);
 
-function changeColor() {
-    if (selectedObject && selectedObject !== mesh) {
-        const selectedColor = document.getElementById('colorPicker').value;
-        const newColor = new THREE.Color(selectedColor);
-        selectedObject.material.color = newColor;
-    }
-}
+        const boundingBox = new THREE.Box3().setFromObject(primitive);
+        const meshBoundingBox = new THREE.Box3().setFromObject(mesh);
 
-function resizeObject() {
-    let isResizing = false;
-
-    document.getElementById('resizeObject').addEventListener('click', function() {
-        isResizing = true;
-    });
-
-    renderer.domElement.addEventListener('click', function(event) {
-        if (isResizing && selectedObject) {
-            const direction = new THREE.Vector3().subVectors(mousePosition, selectedObject.position).normalize();
-
-            const newPosition = new THREE.Vector3().copy(selectedObject.position).addScaledVector(direction, 0.1);
-
-            const cubeSize = 2;
-            const minPosition = new THREE.Vector3(-cubeSize / 2, -cubeSize / 2, -cubeSize / 2);
-            const maxPosition = new THREE.Vector3(cubeSize / 2, cubeSize / 2, cubeSize / 2);
-            newPosition.clamp(minPosition, maxPosition);
-
-            selectedObject.position.copy(newPosition);
+        if (!meshBoundingBox.containsBox(boundingBox)) {
+            alert('Primitiva fora do cubo maior');
+            return;
         }
-    });
 
-    renderer.domElement.addEventListener('mousemove', function(event) {
-        if (isResizing) {
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        scene.add(primitive);
+        currentPrimitives++;
 
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-
-            const intersection = raycaster.intersectObjects(scene.children, true)[0];
-            if (intersection) {
-                mousePosition.copy(intersection.point);
-            }
+        if(!objectSelect){
+            console.log('objectSelect', objectSelect);
         }
-    });
-}
 
-function handleKeyPress(event) {
-    if (!selectedObject) return;
-
-    switch (event.keyCode) {
-        case 37:
-            selectedObject.position.x -= 0.1;
-            break;
-        case 38:
-            selectedObject.position.y += 0.1;
-            break;
-        case 39:
-            selectedObject.position.x += 0.1;
-            break;
-        case 40:
-            selectedObject.position.y -= 0.1;
-            break;
-        case 33:
-            selectedObject.position.z += 0.1;
-            break;
-        case 34:
-            selectedObject.position.z -= 0.1;
-            break;
+        const option = document.createElement('option');
+        option.value = primitive.id;
+        if(type === 'cube'){
+            option.textContent = `Cub${primitive.id}`;
+        }
+        else if(type === 'parallelepiped'){
+            option.textContent = `Par${primitive.id}`;
+        }
+        objectSelect.appendChild(option);
     }
-}
 
-document.addEventListener('keydown', handleKeyPress);
+    function manipulateObject(){
+        const selectedId = objectSelect.value;
+        if(selectedId){
+            selectedObject = scene.getObjectById(parseInt(selectedId));
+            // ... - ?
+        }
+    }
+
+    let mesh = createMesh(0x808080);
+    let meshGroup = new THREE.Group();
+    meshGroup.add(mesh);
+    scene.add(meshGroup);
+    let parallelepiped = createParallelepiped(1.5, 1, 0.5, 0x0000ff);
+    scene.add(parallelepiped);
+
+    function removeObject() {
+        const selectedId = objectSelect.value;
+        if(selectedId && selectedId !== mesh.id){
+            const selectedObject = scene.getObjectById(parseInt(selectedId));
+            scene.remove(selectedObject);
+            objectSelect.remove(objectSelect.selectedIndex);
+            currentPrimitives--;
+        }
+    }
+
+    function translateObject(){
+        const selectedId = objectSelect.value;
+        if(selectedId && selectedId !== mesh.id){
+            const selectedObject = scene.getObjectById(parseInt(selectedId));
+            const x = parseFloat(document.getElementById('changeX').value) || 0;
+            const y = parseFloat(document.getElementById('changeY').value) || 0;
+            const z = parseFloat(document.getElementById('changeZ').value) || 0;
+            selectedObject.position.set(x, y, z);
+        }
+    }
+
+    function resizeObjects(){
+        const selectedId = objectSelect.value;
+        if(selectedId && selectedId !== mesh.id){
+            const selectedObject = scene.getObjectById(parseInt(selectedId));
+            const width = parseFloat(document.getElementById('changeWidth').value) || 1;
+            const height = parseFloat(document.getElementById('changeHeight').value) || 1;
+            const depth = parseFloat(document.getElementById('changeDepth').value) || 1;
+            selectedObject.scale.set(width, height, depth);
+        }
+    }
+
+    function changeColor(){
+        const selectedId = objectSelect.value;
+        if(selectedId && selectedId !== mesh.id){
+            const selectedObject = scene.getObjectById(parseInt(selectedId));
+            const color = document.getElementById('changeColorInput').value;
+            selectedObject.material.color.set(color);
+        }
+    }
+
+    function rotateObject() {
+        const selectedId = objectSelect.value;
+        if (selectedId && selectedId !== mesh.id) {
+            const selectedObject = scene.getObjectById(parseInt(selectedId));
+            const rotX = parseFloat(document.getElementById('changeRotX').value) || 0;
+            const rotY = parseFloat(document.getElementById('changeRotY').value) || 0;
+            const rotZ = parseFloat(document.getElementById('changeRotZ').value) || 0;
+            selectedObject.rotation.set(rotX, rotY, rotZ);
+        }
+    }
+
+    function render(){
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+    }
+    render();
+});
