@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (intersects.length > 0) {
             selectedObject = intersects[0].object;
 
-            if (selectedObject instanceof THREE.LineSegments) {
+            if (selectedObject instanceof THREE.LineSegments && selectedObject !== mesh) {
                 selectedObject = selectedObject.parent;
             }
 
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleKeyPress(event) {
-        if (!selectedObject) return;
+        if (!selectedObject || selectedObject === mesh) return;
 
         switch (event.key) {
             case "ArrowLeft":
