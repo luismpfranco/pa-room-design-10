@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="feat: add primitives almost done and added position and rotation to add primitives">
-      <change beforePath="$PROJECT_DIR$/.idea/pa-room-design-10.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pa-room-design-10.iml" afterDir="false" />
+    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="feat: add manipulate functions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -76,7 +74,7 @@
       <updated>1716661263016</updated>
       <workItem from="1716661264046" duration="20685000" />
       <workItem from="1716731450525" duration="22000" />
-      <workItem from="1716731481406" duration="7089000" />
+      <workItem from="1716731481406" duration="7742000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add primitives almost done and added position and rotation to add primitives">
       <option name="closed" value="true" />
@@ -86,7 +84,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716721837606</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: add manipulate functions">
+      <option name="closed" value="true" />
+      <created>1716740237678</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1716740237678</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -94,6 +100,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: add primitives almost done and added position and rotation to add primitives" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add primitives almost done and added position and rotation to add primitives" />
+    <MESSAGE value="feat: add manipulate functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add manipulate functions" />
   </component>
 </project>

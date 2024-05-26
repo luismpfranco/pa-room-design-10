@@ -247,6 +247,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    renderer.domElement.addEventListener('click', onClick, false);
+
+    function onClick(event) {
+        event.preventDefault();
+
+        const mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(scene.children, true);
+
+        if (intersects.length > 0) {
+            selectedObject = intersects[0].object;
+
+            if (selectedObject instanceof THREE.LineSegments) {
+                selectedObject = selectedObject.parent;
+            }
+
+            const boundingBox = new THREE.Box3().setFromObject(mesh);
+            if (!boundingBox.containsPoint(selectedObject.position)) {
+                selectedObject = null;
+            }
+        } else {
+            selectedObject = null;
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (!selectedObject) return;
+
+        switch (event.key) {
+            case "ArrowLeft":
+                selectedObject.position.x -= 0.1;
+                break;
+            case "ArrowUp":
+                selectedObject.position.z += 0.1;
+                break;
+            case "ArrowRight":
+                selectedObject.position.x += 0.1;
+                break;
+            case "ArrowDown":
+                selectedObject.position.z -= 0.1;
+                break;
+            case 9:
+                selectedObject.position.y += 0.1;
+                break;
+            case 3:
+                selectedObject.position.y -= 0.1;
+                break;
+        }
+    }
+
+    document.addEventListener('keydown', handleKeyPress);
+
     function render(){
         requestAnimationFrame(render);
         renderer.render(scene, camera);
