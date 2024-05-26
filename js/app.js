@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const objectSelect = document.getElementById('primitiveSelect');
     const addPrimitiveButton = document.getElementById('addPrimitive');
     const addModelButton = document.getElementById('addModel');
-    const manipulateObjectButton = document.getElementById('manipulateObject');
     const removeObjectButton = document.getElementById('removeObject');
     const translateObjectButton = document.getElementById('translateObject');
     const resizeObjectButton = document.getElementById('resizeObject');
@@ -15,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     addPrimitiveButton.addEventListener('click', addPrimitive);
-    //addModelButton.addEventListener('click', addModel);
-    manipulateObjectButton.addEventListener('click', manipulateObject);
     removeObjectButton.addEventListener('click', removeObject);
     translateObjectButton.addEventListener('click', translateObject);
     resizeObjectButton.addEventListener('click', resizeObject);
@@ -180,14 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         objectSelect.appendChild(option);
     }
 
-    function manipulateObject(){
-        const selectedId = objectSelect.value;
-        if(selectedId){
-            selectedObject = scene.getObjectById(parseInt(selectedId));
-            // ... - ?
-        }
-    }
-
     let mesh = createMesh(0x808080);
     let meshGroup = new THREE.Group();
     meshGroup.add(mesh);
@@ -293,6 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 case "ArrowDown":
                     selectedObject.position.z -= moveDistance;
+                    break;
+                case "9":
+                    selectedObject.position.y += moveDistance;
+                    break;
+                case "3":
+                    selectedObject.position.y -= moveDistance;
                     break;
             }
         } else {
