@@ -392,6 +392,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+
+    document.addEventListener('mousedown', (event) => {
+        isDragging = true;
+    });
+
+    document.addEventListener('mouseup', (event) => {
+        isDragging = false;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+            let deltaMove = {
+                x: event.offsetX - previousMousePosition.x,
+                y: event.offsetY - previousMousePosition.y
+            };
+
+            let deltaRotationQuaternion = new THREE.Quaternion()
+                .setFromEuler(new THREE.Euler(
+                    toRadians(deltaMove.y),
+                    toRadians(deltaMove.x),
+                    0,
+                    'XYZ'
+                ));
+
+            camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, camera.quaternion);
+
+            previousMousePosition = {
+                x: event.offsetX,
+                y: event.offsetY
+            };
+        }
+    });
+
+    function toRadians(angle) {
+        return angle * (Math.PI / 180);
+    }
+
+    document.addEventListener('click', (event) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        const mouse = {
+            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+        };
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        if (intersects.length > 0) {
+            camera.position.set(x, y, z);
+        }
+    });
+
     function moveCamera(x, y, z) {
         camera.position.x += x;
         camera.position.y += y;
