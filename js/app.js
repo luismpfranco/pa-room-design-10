@@ -1,51 +1,80 @@
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(800, 800);
 renderer.setClearColor(0xffffff, 1);
-document.body.appendChild(renderer.domElement);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// Adicionar chão e paredes
-const material = new THREE.MeshBasicMaterial({ color: 0x808080 });
-const vertices = new Float32Array([
-    -2, -2,  2, // 0
-    2, -2,  2, // 1
-    2, -2, -2, // 2
-    -2, -2, -2, // 3
-    -2,  2, -2, // 4
-    2,  2, -2, // 5
-    -2,  2,  2, // 6
-]);
-const indices = [
-    0, 1, 2,
-    0, 2, 3,
-    3, 2, 5,
-    3, 5, 4,
-    0, 3, 4,
-    0, 4, 6
-];
-const geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-geometry.setIndex(indices);
-geometry.computeVertexNormals();
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+const maxPrimitives = 10;
+let currentPrimitives = 0;
 
-const cubeEdges = new THREE.EdgesGeometry(geometry);
-const cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-const cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);
-mesh.add(cubeLineSegments);
+const cubeSize = 2;
 
-mesh.rotation.y = Math.PI / 2.5;
-
-camera.position.set(6, 0, 0);
+camera.position.set(5, 0, 1);
 camera.lookAt(0, 0, 0);
 
-let paralelepipedEdges;
+function createMesh(color) {
+    const material = new THREE.MeshBasicMaterial({ color });
+    const vertices = new Float32Array([
+        -2, -2,  2, // 0
+        2, -2,  2, // 1
+        2, -2, -2, // 2
+        -2, -2, -2, // 3
+        -2,  2, -2, // 4
+        2,  2, -2, // 5
+        -2,  2,  2, // 6,
+    ]);
+    const indices = [
+        0, 1, 2,
+        0, 2, 3,
+        3, 2, 5,
+        3, 5, 4,
+        0, 3, 4,
+        0, 4, 6
+    ];
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+    const cubeEdges = new THREE.EdgesGeometry(geometry);
+    const cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);
+    mesh.add(cubeLineSegments);
+    mesh.rotation.y = Math.PI / 2.5;
+    return mesh;
+}
 
-function createParallelepiped(width, height, depth, position, color) {
-    const halfHeight = height / 2;
+function createBox(width, height, depth, color) {
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    const box = new THREE.Mesh(geometry, material);
+
+    const edges = new THREE.EdgesGeometry(geometry);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+    box.add(lineSegments);
+
+    return box;
+}
+
+function createParallelepiped(width, height, depth, color) {
+    const geometry = new THREE.BoxGeometry(width, height, depth);
+    const material = new THREE.MeshBasicMaterial({ color: color });
+    const parallelepiped = new THREE.Mesh(geometry, material);
+
+    const edges = new THREE.EdgesGeometry(geometry);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+    parallelepiped.add(lineSegments);
+
+    return parallelepiped;
+}
+
+function clampPosition(position, width, height, depth) {
     const halfWidth = width / 2;
+    const halfHeight = height / 2;
     const halfDepth = depth / 2;
 
     const minPosition = {
@@ -60,47 +89,77 @@ function createParallelepiped(width, height, depth, position, color) {
         z: cubeSize / 2 - halfDepth
     };
 
-    const clampedPosition = {
+    return {
         x: Math.min(Math.max(position.x, minPosition.x), maxPosition.x),
         y: Math.min(Math.max(position.y, minPosition.y), maxPosition.y),
         z: Math.min(Math.max(position.z, minPosition.z), maxPosition.z)
     };
-
-    const geometry = new THREE.BoxGeometry(width, height, depth);
-    const material = new THREE.MeshBasicMaterial({ color: color });
-    const parallelepiped = new THREE.Mesh(geometry, material);
-    parallelepiped.position.set(clampedPosition.x, clampedPosition.y + halfHeight, clampedPosition.z);
-    scene.add(parallelepiped);
-
-    // Adicionando bordas
-    const edges = new THREE.EdgesGeometry(geometry);
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const lineSegments = new THREE.LineSegments(edges, lineMaterial);
-    parallelepiped.add(lineSegments);
-
-    return { parallelepiped, lineSegments };
 }
 
-const cubeSize = 2;
-({ parallelepiped, lineSegments: paralelepipedEdges } = createParallelepiped(1.5, 1, 0.5, { x: 0, y: -2, z: -cubeSize + 0.5 / 2 + 0.01 }, 0x0000ff));
+function addPrimitive() {
+    if (currentPrimitives >= maxPrimitives) {
+        alert('Número máximo de primitivas atingido');
+        return;
+    }
 
-animate();
+    const type = document.getElementById('primitiveType').value;
+    const width = parseFloat(document.getElementById('width').value) || 1;
+    const height = parseFloat(document.getElementById('height').value) || 1;
+    const depth = parseFloat(document.getElementById('depth').value) || 1;
+    const color = document.getElementById('exampleColorInput').value;
+    const posX = parseFloat(document.getElementById('posX').value) || 0;
+    const posY = parseFloat(document.getElementById('posY').value) || 0;
+    const posZ = parseFloat(document.getElementById('posZ').value) || 0;
+    const rotX = parseFloat(document.getElementById('rotX').value) || 0;
+    const rotY = parseFloat(document.getElementById('rotY').value) || 0;
+    const rotZ = parseFloat(document.getElementById('rotZ').value) || 0;
 
-let selectedObject = null;
+    const position = clampPosition({ x: posX, y: posY, z: posZ }, width, height, depth);
 
-renderer.domElement.addEventListener('click', onClick, false);
+    let primitive;
+    if (type === 'cube') {
+        primitive = createBox(width, height, depth, color);
+    } else if (type === 'parallelepiped') {
+        primitive = createParallelepiped(width, height, depth, color);
+    }
+
+    primitive.position.set(position.x, position.y, position.z);
+    primitive.rotation.set(rotX, rotY, rotZ);
+
+    const boundingBox = new THREE.Box3().setFromObject(primitive);
+    const meshBoundingBox = new THREE.Box3().setFromObject(mesh);
+
+    if (!meshBoundingBox.containsBox(boundingBox)) {
+        alert('Primitiva fora do cubo maior');
+        return;
+    }
+
+    scene.add(primitive);
+    currentPrimitives++;
+}
 
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
 
+let mesh = createMesh(0x808080);
+parallelepiped = createParallelepiped(1.5, 1, 0.5, 0x0000ff);
+scene.add(parallelepiped);
+animate();
+
+
+let selectedObject = null;
+
+renderer.domElement.addEventListener('click', onClick, false);
+
+
 function onClick(event) {
     event.preventDefault();
 
     const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
@@ -109,35 +168,32 @@ function onClick(event) {
 
     if (intersects.length > 0) {
         selectedObject = intersects[0].object;
+
+        if (selectedObject instanceof THREE.LineSegments) {
+            selectedObject = selectedObject.parent;
+        }
+
+        const boundingBox = new THREE.Box3().setFromObject(mesh);
+        if (!boundingBox.containsPoint(selectedObject.position)) {
+            selectedObject = null;
+        }
     } else {
         selectedObject = null;
     }
 }
 
 function removeObject() {
-    let objectToRemove = selectedObject;
-
-    if (selectedObject instanceof THREE.LineSegments) {
-        objectToRemove = selectedObject.parent;
-    }
-
-    if (objectToRemove && objectToRemove !== mesh && objectToRemove !== cubeLineSegments) {
-        scene.remove(objectToRemove);
+    if (selectedObject && selectedObject !== mesh) {
+        scene.remove(selectedObject);
         selectedObject = null;
     }
 }
 
 function changeColor() {
-    let objectToChange = selectedObject;
-
-    if (selectedObject instanceof THREE.LineSegments) {
-        objectToChange = selectedObject.parent;
-    }
-
-    if (objectToChange && objectToChange !== mesh){
+    if (selectedObject && selectedObject !== mesh) {
         const selectedColor = document.getElementById('colorPicker').value;
         const newColor = new THREE.Color(selectedColor);
-        objectToChange.material.color = newColor;
+        selectedObject.material.color = newColor;
     }
 }
 
@@ -204,3 +260,5 @@ function handleKeyPress(event) {
             break;
     }
 }
+
+document.addEventListener('keydown', handleKeyPress);

@@ -1,0 +1,221 @@
+Index: js/app.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>const scene = new THREE.Scene();\nconst camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);\nconst renderer = new THREE.WebGLRenderer({ antialias: true });\nrenderer.setSize(window.innerWidth, window.innerHeight);\nrenderer.setClearColor(0xffffff, 1);\ndocument.body.appendChild(renderer.domElement);\n\n// Adicionar chão e paredes\nconst material = new THREE.MeshBasicMaterial({ color: 0x808080 });\nconst vertices = new Float32Array([\n    -2, -2,  2, // 0\n    2, -2,  2, // 1\n    2, -2, -2, // 2\n    -2, -2, -2, // 3\n    -2,  2, -2, // 4\n    2,  2, -2, // 5\n    -2,  2,  2, // 6\n]);\nconst indices = [\n    0, 1, 2,\n    0, 2, 3,\n    3, 2, 5,\n    3, 5, 4,\n    0, 3, 4,\n    0, 4, 6\n];\nconst geometry = new THREE.BufferGeometry();\ngeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));\ngeometry.setIndex(indices);\ngeometry.computeVertexNormals();\nconst mesh = new THREE.Mesh(geometry, material);\nscene.add(mesh);\n\nconst cubeEdges = new THREE.EdgesGeometry(geometry);\nconst cubeLineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });\nconst cubeLineSegments = new THREE.LineSegments(cubeEdges, cubeLineMaterial);\nmesh.add(cubeLineSegments);\n\nmesh.rotation.y = Math.PI / 2.5;\n\ncamera.position.set(6, 0, 0);\ncamera.lookAt(0, 0, 0);\n\nlet paralelepipedEdges;\n\nfunction createParallelepiped(width, height, depth, position, color) {\n    const halfHeight = height / 2;\n    const halfWidth = width / 2;\n    const halfDepth = depth / 2;\n\n    const minPosition = {\n        x: -cubeSize / 2 + halfWidth,\n        y: -cubeSize / 2 + halfHeight,\n        z: -cubeSize / 2 + halfDepth\n    };\n\n    const maxPosition = {\n        x: cubeSize / 2 - halfWidth,\n        y: cubeSize / 2 - halfHeight,\n        z: cubeSize / 2 - halfDepth\n    };\n\n    const clampedPosition = {\n        x: Math.min(Math.max(position.x, minPosition.x), maxPosition.x),\n        y: Math.min(Math.max(position.y, minPosition.y), maxPosition.y),\n        z: Math.min(Math.max(position.z, minPosition.z), maxPosition.z)\n    };\n\n    const geometry = new THREE.BoxGeometry(width, height, depth);\n    const material = new THREE.MeshBasicMaterial({ color: color });\n    const parallelepiped = new THREE.Mesh(geometry, material);\n    parallelepiped.position.set(clampedPosition.x, clampedPosition.y + halfHeight, clampedPosition.z);\n    scene.add(parallelepiped);\n\n    // Adicionando bordas\n    const edges = new THREE.EdgesGeometry(geometry);\n    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });\n    const lineSegments = new THREE.LineSegments(edges, lineMaterial);\n    parallelepiped.add(lineSegments);\n\n    return { parallelepiped, lineSegments };\n}\n\nconst cubeSize = 2;\n({ parallelepiped, lineSegments: paralelepipedEdges } = createParallelepiped(1.5, 1, 0.5, { x: 0, y: -2, z: -cubeSize + 0.5 / 2 + 0.01 }, 0x0000ff));\n\nanimate();\n\nlet selectedObject = null;\n\nrenderer.domElement.addEventListener('click', onClick, false);\n\nfunction animate() {\n    requestAnimationFrame(animate);\n    renderer.render(scene, camera);\n}\n\nfunction onClick(event) {\n    event.preventDefault();\n\n    const mouse = new THREE.Vector2();\n    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;\n    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;\n\n    const raycaster = new THREE.Raycaster();\n    raycaster.setFromCamera(mouse, camera);\n\n    const intersects = raycaster.intersectObjects(scene.children, true);\n\n    if (intersects.length > 0) {\n        selectedObject = intersects[0].object;\n    } else {\n        selectedObject = null;\n    }\n}\n\nfunction removeObject() {\n    let objectToRemove = selectedObject;\n\n    if (selectedObject instanceof THREE.LineSegments) {\n        objectToRemove = selectedObject.parent;\n    }\n\n    if (objectToRemove && objectToRemove !== mesh && objectToRemove !== cubeLineSegments) {\n        scene.remove(objectToRemove);\n        selectedObject = null;\n    }\n}\n\nfunction changeColor() {\n    let objectToChange = selectedObject;\n\n    if (selectedObject instanceof THREE.LineSegments) {\n        objectToChange = selectedObject.parent;\n    }\n\n    if (objectToChange && objectToChange !== mesh){\n        const selectedColor = document.getElementById('colorPicker').value;\n        const newColor = new THREE.Color(selectedColor);\n        objectToChange.material.color = newColor;\n    }\n}\n\nfunction resizeObject() {\n    let isResizing = false;\n\n    document.getElementById('resizeObject').addEventListener('click', function() {\n        isResizing = true;\n    });\n\n    renderer.domElement.addEventListener('click', function(event) {\n        if (isResizing && selectedObject) {\n            const direction = new THREE.Vector3().subVectors(mousePosition, selectedObject.position).normalize();\n\n            const newPosition = new THREE.Vector3().copy(selectedObject.position).addScaledVector(direction, 0.1);\n\n            const cubeSize = 2;\n            const minPosition = new THREE.Vector3(-cubeSize / 2, -cubeSize / 2, -cubeSize / 2);\n            const maxPosition = new THREE.Vector3(cubeSize / 2, cubeSize / 2, cubeSize / 2);\n            newPosition.clamp(minPosition, maxPosition);\n\n            selectedObject.position.copy(newPosition);\n        }\n    });\n\n    renderer.domElement.addEventListener('mousemove', function(event) {\n        if (isResizing) {\n            const mouse = new THREE.Vector2();\n            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;\n            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;\n\n            const raycaster = new THREE.Raycaster();\n            raycaster.setFromCamera(mouse, camera);\n\n            const intersection = raycaster.intersectObjects(scene.children, true)[0];\n            if (intersection) {\n                mousePosition.copy(intersection.point);\n            }\n        }\n    });\n}\n\nfunction handleKeyPress(event) {\n    if (!selectedObject) return;\n\n    switch (event.keyCode) {\n        case 37:\n            selectedObject.position.x -= 0.1;\n            break;\n        case 38:\n            selectedObject.position.y += 0.1;\n            break;\n        case 39:\n            selectedObject.position.x += 0.1;\n            break;\n        case 40:\n            selectedObject.position.y -= 0.1;\n            break;\n        case 33:\n            selectedObject.position.z += 0.1;\n            break;\n        case 34:\n            selectedObject.position.z -= 0.1;\n            break;\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/js/app.js b/js/app.js
+--- a/js/app.js	(revision 7796961c15b208a1e11fc859b38f13c627c8511e)
++++ b/js/app.js	(date 1716678855326)
+@@ -1,9 +1,9 @@
+ const scene = new THREE.Scene();
+-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
++const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+ const renderer = new THREE.WebGLRenderer({ antialias: true });
+-renderer.setSize(window.innerWidth, window.innerHeight);
++renderer.setSize(800, 800);
+ renderer.setClearColor(0xffffff, 1);
+-document.body.appendChild(renderer.domElement);
++document.getElementById('canvas-container').appendChild(renderer.domElement);
+ 
+ // Adicionar chão e paredes
+ const material = new THREE.MeshBasicMaterial({ color: 0x808080 });
+@@ -14,7 +14,7 @@
+     -2, -2, -2, // 3
+     -2,  2, -2, // 4
+     2,  2, -2, // 5
+-    -2,  2,  2, // 6
++    -2,  2,  2, // 6,
+ ]);
+ const indices = [
+     0, 1, 2,
+@@ -38,10 +38,10 @@
+ 
+ mesh.rotation.y = Math.PI / 2.5;
+ 
+-camera.position.set(6, 0, 0);
++camera.position.set(5, 0, 1);
+ camera.lookAt(0, 0, 0);
+ 
+-let paralelepipedEdges;
++let parallelepiped, paralelepipedEdges;
+ 
+ function createParallelepiped(width, height, depth, position, color) {
+     const halfHeight = height / 2;
+@@ -99,8 +99,8 @@
+     event.preventDefault();
+ 
+     const mouse = new THREE.Vector2();
+-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
++    mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
++    mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+ 
+     const raycaster = new THREE.Raycaster();
+     raycaster.setFromCamera(mouse, camera);
+@@ -109,35 +109,34 @@
+ 
+     if (intersects.length > 0) {
+         selectedObject = intersects[0].object;
++
++        // Se o objeto selecionado for uma linha, selecionar o pai dele (que é o Mesh)
++        if (selectedObject instanceof THREE.LineSegments) {
++            selectedObject = selectedObject.parent;
++        }
++
++        // Verificar se o objeto está dentro do cubo maior
++        const boundingBox = new THREE.Box3().setFromObject(mesh);
++        if (!boundingBox.containsPoint(selectedObject.position)) {
++            selectedObject = null;
++        }
+     } else {
+         selectedObject = null;
+     }
+ }
+ 
+ function removeObject() {
+-    let objectToRemove = selectedObject;
+-
+-    if (selectedObject instanceof THREE.LineSegments) {
+-        objectToRemove = selectedObject.parent;
+-    }
+-
+-    if (objectToRemove && objectToRemove !== mesh && objectToRemove !== cubeLineSegments) {
+-        scene.remove(objectToRemove);
++    if (selectedObject && selectedObject !== mesh) {
++        scene.remove(selectedObject);
+         selectedObject = null;
+     }
+ }
+ 
+ function changeColor() {
+-    let objectToChange = selectedObject;
+-
+-    if (selectedObject instanceof THREE.LineSegments) {
+-        objectToChange = selectedObject.parent;
+-    }
+-
+-    if (objectToChange && objectToChange !== mesh){
++    if (selectedObject && selectedObject !== mesh) {
+         const selectedColor = document.getElementById('colorPicker').value;
+         const newColor = new THREE.Color(selectedColor);
+-        objectToChange.material.color = newColor;
++        selectedObject.material.color = newColor;
+     }
+ }
+ 
+@@ -180,7 +179,7 @@
+     });
+ }
+ 
+-function handleKeyPress(event) {
++/*function handleKeyPress(event) {
+     if (!selectedObject) return;
+ 
+     switch (event.keyCode) {
+@@ -203,4 +202,6 @@
+             selectedObject.position.z -= 0.1;
+             break;
+     }
+-}
+\ No newline at end of file
++}
++
++document.addEventListener('keydown', handleKeyPress);*/
+Index: index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\n<html lang=\"pt\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Projeto de Quarto em Three.js</title>\n    <style>\n        body {\n            background-color: #ffffff;\n        }\n    </style>\n    <script src=\"js/jscolor.js\"></script>\n</head>\n<body>\n<script src=\"js/three.js\"></script>\n<script src=\"js/app.js\"></script>\n<button onclick=\"removeObject()\">Remover</button>\n<button onclick=\"changeColor()\">Alterar Cor</button>\n<input data-jscolor=\"\" class=\"jscolor\" id=\"colorPicker\" value=\"#ff0000\">\n<button onclick=\"resizeObject()\">Redimensionar</button>\n</body>\n</html>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/index.html b/index.html
+--- a/index.html	(revision 7796961c15b208a1e11fc859b38f13c627c8511e)
++++ b/index.html	(date 1716677379626)
+@@ -3,20 +3,78 @@
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>Projeto de Quarto em Three.js</title>
++    <title>PA-Room-Design-10</title>
++    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+     <style>
+         body {
+             background-color: #ffffff;
+         }
++        #canvas-container {
++            border: 1px solid black;
++            margin: 10px auto 0px;
++            width: 800px;
++            height: 800px;
++            display: flex;
++            justify-content: center;
++            align-items: center;
++            box-sizing: content-box;
++        }
++        input[type="text"] {
++            border-radius: 7px;
++            width: 50px;
++            height: 50px;
++        }
++        .form-label{
++            color: #696969;
++        }
+     </style>
+     <script src="js/jscolor.js"></script>
+ </head>
+ <body>
++<div id="canvas-container"></div>
+ <script src="js/three.js"></script>
+ <script src="js/app.js"></script>
+-<button onclick="removeObject()">Remover</button>
+-<button onclick="changeColor()">Alterar Cor</button>
+-<input data-jscolor="" class="jscolor" id="colorPicker" value="#ff0000">
+-<button onclick="resizeObject()">Redimensionar</button>
++<div style="width: 800px; border: 1px solid black; margin: 0 auto 10px; box-sizing: content-box;">
++    <div style="padding: 10px;">
++        <button onclick="removeObject()">Remover</button>
++        <button onclick="changeColor()">Alterar Cor</button>
++        <input data-jscolor="" class="jscolor" id="colorPicker" value="#ff0000">
++        <button onclick="resizeObject()">Redimensionar</button>
++        <br><br>
++
++        <!--<div class="row">
++            <div class="col-4">
++                <div class="input-group mb-3">
++                    <select class="form-select" id="inputGroupSelect02">
++                        <option value="c">Cubo</option>
++                        <option value="p">Paralelepípedo</option>
++                    </select>
++                </div>
++                <div class="a-l-p row">
++                    <div class="col-3">
++                        <label for="exampleFormControlInput1" class="form-label">Altura</label>
++                        <input type="text" class="form-control" id="exampleFormControlInput1">
++                    </div>
++                    <div class="col-3">
++                        <label for="exampleFormControlInput2" class="form-label">Largura</label>
++                        <input type="text" class="form-control" id="exampleFormControlInput2">
++                    </div>
++                    <div class="col-3">
++                        <label for="exampleFormControlInput3" class="form-label">Profundidade</label>
++                        <input type="text" class="form-control" id="exampleFormControlInput3">
++                    </div>
++                </div>
++            </div>
++            <div class="col-4">
++
++            </div>
++            <div class="col-4">
++
++            </div>
++        </div>
++
++        <button type="button" class="btn btn-primary">Adicionar primitiva</button>-->
++    </div>
++</div>
+ </body>
+-</html>
+\ No newline at end of file
++</html>
