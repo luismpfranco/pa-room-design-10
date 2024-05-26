@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resizeObjectButton = document.getElementById('resizeObject');
     const changeColorButton = document.getElementById('changeColor');
     const rotateObjectButton = document.getElementById('rotateObject');
+    const addLightButton = document.getElementById('addLight');
 
     if (!objectSelect) {
         console.error('Element with id "primitiveSelect" not found.');
@@ -14,11 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     addPrimitiveButton.addEventListener('click', addPrimitive);
+    //addModelButton.addEventListener('click', addModel);
     removeObjectButton.addEventListener('click', removeObject);
     translateObjectButton.addEventListener('click', translateObject);
     resizeObjectButton.addEventListener('click', resizeObject);
     changeColorButton.addEventListener('click', changeColor);
     rotateObjectButton.addEventListener('click', rotateObject);
+    addLightButton.addEventListener('click', addLight);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -26,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(800, 800);
     renderer.setClearColor(0xffffff, 1);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const objects = [];
 
     const maxPrimitives = 10;
     let currentPrimitives = 0;
@@ -75,13 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
         const lineSegments = new THREE.LineSegments(edges, lineMaterial);
         box.add(lineSegments);
+        box.rotation.y = Math.PI / 2.5;
 
         return box;
     }
 
     function createParallelepiped(width, height, depth, color) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshBasicMaterial({ color: color });
+        geometry.computeVertexNormals();
+        const material = new THREE.MeshLambertMaterial({ color: color });
         const parallelepiped = new THREE.Mesh(geometry, material);
 
         const edges = new THREE.EdgesGeometry(geometry);
@@ -91,9 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return parallelepiped;
     }
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambientLight);
 
     function clampPosition(position, width, height, depth) {
         const halfWidth = width / 2;
@@ -160,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         scene.add(primitive);
+        objects.push(primitive);
         currentPrimitives++;
 
         if(!objectSelect){
@@ -181,8 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let meshGroup = new THREE.Group();
     meshGroup.add(mesh);
     scene.add(meshGroup);
-    let parallelepiped = createParallelepiped(1.5, 1, 0.5, 0x0000ff);
-    scene.add(parallelepiped);
+    objects.push(mesh);
 
     function removeObject() {
         const selectedId = objectSelect.value;
@@ -205,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function resizeObjects(){
+    function resizeObject(){
         const selectedId = objectSelect.value;
         if(selectedId && selectedId !== mesh.id){
             const selectedObject = scene.getObjectById(parseInt(selectedId));
@@ -233,6 +237,70 @@ document.addEventListener('DOMContentLoaded', () => {
             const rotY = parseFloat(document.getElementById('changeRotY').value) || 0;
             const rotZ = parseFloat(document.getElementById('changeRotZ').value) || 0;
             selectedObject.rotation.set(rotX, rotY, rotZ);
+        }
+    }
+
+    const lightTypeSelect = document.getElementById('lightType');
+    const illuminationTypeSelect = document.getElementById('illuminationType');
+
+    function addLight(){
+        const lightType = lightTypeSelect.value;
+        const illuminationType = illuminationTypeSelect.value;
+
+        const posX = parseFloat(document.getElementById('lightPosX').value) || 0;
+        const posY = parseFloat(document.getElementById('lightPosY').value) || 0;
+        const posZ = parseFloat(document.getElementById('lightPosZ').value) || 0;
+        const dirX = parseFloat(document.getElementById('lightDirX').value) || 0;
+        const dirY = parseFloat(document.getElementById('lightDirY').value) || 0;
+        const dirZ = parseFloat(document.getElementById('lightDirZ').value) || 0;
+        const colorR = parseInt(document.getElementById('lightColorR').value) || 251;
+        const colorG = parseInt(document.getElementById('lightColorG').value) || 255;
+        const colorB = parseInt(document.getElementById('lightColorB').value) || 0;
+
+        const lightColor = new THREE.Color(`rgb(${colorR}, ${colorG}, ${colorB})`);
+        let light;
+
+        switch (lightType) {
+            case 'ambient':
+                light = new THREE.AmbientLight(lightColor);
+                break;
+            case 'directional':
+                light = new THREE.DirectionalLight(lightColor);
+                light.position.set(posX, posY, posZ);
+                light.target.position.set(dirX, dirY, dirZ);
+                scene.add(light.target);
+                break;
+            default:
+                console.error('Tipo de luz desconhecido:', lightType);
+                return;
+        }
+
+        scene.add(light);
+        applyIlluminationType(illuminationType);
+    }
+
+    function applyIlluminationType(type) {
+        switch (type) {
+            case 'phong':
+                objects.forEach(object => {
+                    object.material = new THREE.MeshPhongMaterial({ color: object.material.color });
+                });
+                break;
+            case 'ambient':
+                scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                break;
+            case 'diffuse':
+                objects.forEach(object => {
+                    object.material = new THREE.MeshLambertMaterial({ color: object.material.color });
+                });
+                break;
+            case 'specular':
+                objects.forEach(object => {
+                    object.material = new THREE.MeshPhongMaterial({ color: object.material.color, specular: 0x555555 });
+                });
+                break;
+            default:
+                console.error('Tipo de iluminação desconhecido:', type);
         }
     }
 

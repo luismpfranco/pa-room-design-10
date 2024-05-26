@@ -210,54 +210,69 @@
                 </div>
 
                 <div class="col-4">
+
+                    <label for="lightType">Tipo de Luz</label>
+                    <select class="form-select" id="lightType">
+                        <option value="ambient">Luz Ambiente</option>
+                        <option value="directional">Luz Direcional</option>
+                    </select>
+
+                    <label for="illuminationType" class="mt-3">Tipo de Iluminação</label>
+                    <select class="form-select" id="illuminationType">
+                        <option value="phong">Phong</option>
+                        <option value="ambient">Ambiente</option>
+                        <option value="diffuse">Difusa</option>
+                        <option value="specular">Especular</option>
+                    </select>
+
                     <label>Posição</label>
                     <div class="p-d-c mb-3 row">
                         <div class="col-3">
-                            <label for="exampleFormControlInput4" class="form-label">x</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput4">
+                            <label for="lightPosX" class="form-label">x</label>
+                            <input type="text" class="form-control" id="lightPosX">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput5" class="form-label">y</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput5">
+                            <label for="lightPosY" class="form-label">y</label>
+                            <input type="text" class="form-control" id="lightPosY">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput6" class="form-label">z</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput6">
+                            <label for="lightPosZ" class="form-label">z</label>
+                            <input type="text" class="form-control" id="lightPosZ">
                         </div>
                     </div>
 
                     <label>Direção</label>
                     <div class="p-d-c mb-3 row">
                         <div class="col-3">
-                            <label for="exampleFormControlInput7" class="form-label">x</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput7">
+                            <label for="lightDirX" class="form-label">x</label>
+                            <input type="text" class="form-control" id="lightDirX">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput8" class="form-label">y</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput8">
+                            <label for="lightDirY" class="form-label">y</label>
+                            <input type="text" class="form-control" id="lightDirY">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput9" class="form-label">z</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput9">
+                            <label for="lightDirZ" class="form-label">z</label>
+                            <input type="text" class="form-control" id="lightDirZ">
                         </div>
                     </div>
 
                     <label>Cor</label>
                     <div class="p-d-c mb-3 row">
                         <div class="col-3">
-                            <label for="exampleFormControlInput10" class="form-label">R</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput10">
+                            <label for="lightColorR" class="form-label">R</label>
+                            <input type="text" class="form-control" id="lightColorR">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput11" class="form-label">G</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput11">
+                            <label for="lightColorG" class="form-label">G</label>
+                            <input type="text" class="form-control" id="lightColorG">
                         </div>
                         <div class="col-3">
-                            <label for="exampleFormControlInput12" class="form-label">B</label>
-                            <input type="text" class="form-control" id="exampleFormControlInput12">
+                            <label for="lightColorB" class="form-label">B</label>
+                            <input type="text" class="form-control" id="lightColorB">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary">Adicionar Luz</button>
+                    <button type="button" class="btn btn-primary mt-3" id="addLight">Adicionar Luz</button>
                 </div>
             </div>
         </div>
