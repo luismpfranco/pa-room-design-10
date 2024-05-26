@@ -9,11 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rotateObjectButton = document.getElementById('rotateObject');
     const addLightButton = document.getElementById('addLight');
 
-    if (!objectSelect) {
-        console.error('Element with id "primitiveSelect" not found.');
-        return;
-    }
-
     addPrimitiveButton.addEventListener('click', addPrimitive);
     //addModelButton.addEventListener('click', addModel);
     removeObjectButton.addEventListener('click', removeObject);
@@ -22,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     changeColorButton.addEventListener('click', changeColor);
     rotateObjectButton.addEventListener('click', rotateObject);
     addLightButton.addEventListener('click', addLight);
+
+    if (!objectSelect) {
+        console.error('Element with id "primitiveSelect" not found.');
+        return;
+    }
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -167,10 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         objects.push(primitive);
         currentPrimitives++;
 
-        if(!objectSelect){
-            console.log('objectSelect', objectSelect);
-        }
-
         const option = document.createElement('option');
         option.value = primitive.id;
         if(type === 'cube'){
@@ -224,8 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedId = objectSelect.value;
         if(selectedId && selectedId !== mesh.id){
             const selectedObject = scene.getObjectById(parseInt(selectedId));
-            const color = document.getElementById('changeColorInput').value;
-            selectedObject.material.color.set(color);
+            const newColor = document.getElementById('changeColorInput').value;
+            selectedObject.material.color.set(newColor);
         }
     }
 
@@ -392,68 +388,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
-
-    document.addEventListener('mousedown', (event) => {
-        isDragging = true;
-    });
-
-    document.addEventListener('mouseup', (event) => {
-        isDragging = false;
-    });
-
-    document.addEventListener('mousemove', (event) => {
-        if (isDragging) {
-            let deltaMove = {
-                x: event.offsetX - previousMousePosition.x,
-                y: event.offsetY - previousMousePosition.y
-            };
-
-            let deltaRotationQuaternion = new THREE.Quaternion()
-                .setFromEuler(new THREE.Euler(
-                    toRadians(deltaMove.y),
-                    toRadians(deltaMove.x),
-                    0,
-                    'XYZ'
-                ));
-
-            camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, camera.quaternion);
-
-            previousMousePosition = {
-                x: event.offsetX,
-                y: event.offsetY
-            };
-        }
-    });
-
-    function toRadians(angle) {
-        return angle * (Math.PI / 180);
-    }
-
-    document.addEventListener('click', (event) => {
-        const rect = renderer.domElement.getBoundingClientRect();
-        const mouse = {
-            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
-            y: -((event.clientY - rect.top) / rect.height) * 2 + 1,
-            z: camera.position.z
-        };
-
-        const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouse, camera);
-
-        const intersects = raycaster.intersectObjects(scene.children, true);
-        if (intersects.length > 0) {
-            selectedObject = intersects[0].object;
-        }
-    });
-
     function moveCamera(x, y, z) {
         camera.position.x += x;
         camera.position.y += y;
         camera.position.z += z;
         camera.lookAt(scene.position);
     }
+
+    const mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = true;
+
+    document.addEventListener('keydown', function (event) {
+        switch (event.key) {
+            case 'w':
+                camera.position.z -= 0.1;
+                break;
+            case 's':
+                camera.position.z += 0.1;
+                break;
+            case 'a':
+                camera.position.x -= 0.1;
+                break;
+            case 'd':
+                camera.position.x += 0.1;
+                break;
+        }
+    });
+
+    document.addEventListener('mousedown', function (event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(objects);
+
+        if (intersects.length > 0) {
+            selectedObject = intersects[0].object;
+            console.log('Objeto selecionado:', selectedObject);
+        } else {
+            selectedObject = null;
+        }
+    });
+
+
 
     document.addEventListener('keydown', handleKeyPress);
 
