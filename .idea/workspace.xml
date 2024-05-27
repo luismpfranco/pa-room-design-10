@@ -4,12 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="chore: Combine my code with Catarina's for testing">
+    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="fix: mouse functionality fixed">
       <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/pa-room-design-10.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pa-room-design-10.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modelos/bird.obj" beforeDir="false" afterPath="$PROJECT_DIR$/modelos/bird.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modelos/cat.obj" beforeDir="false" afterPath="$PROJECT_DIR$/modelos/cat.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modelos/cat_texture.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modelos/tiger_texture.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modelos/trophy.obj" beforeDir="false" afterPath="$PROJECT_DIR$/modelos/trophy.obj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +86,7 @@
       <workItem from="1716731450525" duration="22000" />
       <workItem from="1716731481406" duration="8745000" />
       <workItem from="1716759323424" duration="27000" />
-      <workItem from="1716759357179" duration="4310000" />
+      <workItem from="1716759357179" duration="15266000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add primitives almost done and added position and rotation to add primitives">
       <option name="closed" value="true" />
@@ -115,7 +120,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716748762652</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fix: mouse functionality fixed">
+      <option name="closed" value="true" />
+      <created>1716767376620</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1716767376620</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -126,6 +139,7 @@
     <MESSAGE value="feat: add manipulate functions" />
     <MESSAGE value="feat: add moviments funcionality" />
     <MESSAGE value="chore: Combine my code with Catarina's for testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: Combine my code with Catarina's for testing" />
+    <MESSAGE value="fix: mouse functionality fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: mouse functionality fixed" />
   </component>
 </project>
