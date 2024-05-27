@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 objNormals.push(parts.map(parseFloat));
             },
             vt(parts) {
-                objTexcoords.push(parts.map(parseFloat));
+                objTextureCoords.push(parts.map(parseFloat));
             },
             f(parts) {
                 const numTriangles = parts.length - 2;
