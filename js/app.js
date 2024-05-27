@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxPrimitives = 10;
     let currentPrimitives = 0;
     let currentModels = 0;
-    const cubeSize = 2;
+    const cubeSize = 3;
 
     camera.position.set(5, 0, 1);
     camera.lookAt(0, 0, 0);
@@ -88,8 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParallelepiped(width, height, depth, color) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
-        geometry.computeVertexNormals();
-        const material = new THREE.MeshLambertMaterial({ color: color });
+        const material = new THREE.MeshBasicMaterial({ color: color });
         const parallelepiped = new THREE.Mesh(geometry, material);
 
         const edges = new THREE.EdgesGeometry(geometry);
@@ -157,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         primitive.rotation.set(rotX, rotY, rotZ);
 
         const boundingBox = new THREE.Box3().setFromObject(primitive);
-        if (!boundingBox.intersectsBox(new THREE.Box3().setFromObject(mesh))) {
+        if (!isPositionWithinBounds(position, getObjectSize(primitive))) {
             alert('Primitive out of bounds');
             return;
         }
@@ -168,14 +167,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const option = document.createElement('option');
         option.value = primitive.id;
-        if(type === 'cube'){
-            option.textContent = `Cub${primitive.id}`;
-        }
-        else if(type === 'parallelepiped'){
-            option.textContent = `Par${primitive.id}`;
+        if (type === 'cube') {
+            option.textContent = `Cube${primitive.id}`;
+        } else if (type === 'parallelepiped') {
+            option.textContent = `Parallelepiped${primitive.id}`;
         }
         objectSelect.appendChild(option);
     }
+
 
     let mesh = createMesh(0x808080);
     let meshGroup = new THREE.Group();
@@ -227,9 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rotY = parseFloat(document.getElementById('rotYModel').value) || 0;
         const rotZ = parseFloat(document.getElementById('rotZModel').value) || 0;
 
-        obj.position.set(posX, posY, posZ);
-        obj.rotation.set(rotX, rotY, rotZ);
-
         switch(fileName){
             case "tiger":
                 obj.scale.set(0.0005, 0.0005, 0.0005);
@@ -250,6 +246,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 obj.scale.set(0.02, 0.02, 0.02);
                 break;
         }
+
+        const position = clampPosition({ x: posX, y: posY, z: posZ }, obj.scale.x, obj.scale.y, obj.scale.z);
+
+        obj.position.set(position.x, position.y, position.z);
+        obj.rotation.set(rotX, rotY, rotZ);
+
+        const boundingBox = new THREE.Box3().setFromObject(obj);
+        if (!boundingBox.intersectsBox(new THREE.Box3().setFromObject(meshGroup))) {
+            alert('Model out of bounds');
+            return;
+        }
+
         scene.add(obj);
         objects.push(obj);
         currentModels++;
@@ -274,13 +282,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedId = objectSelect.value;
         if (selectedId && selectedId !== mesh.id) {
             const selectedObject = scene.getObjectById(parseInt(selectedId));
-            const x = parseFloat(document.getElementById('changeX').value) || 0;
-            const y = parseFloat(document.getElementById('changeY').value) || 0;
-            const z = parseFloat(document.getElementById('changeZ').value) || 0;
+            const deltaX = parseFloat(document.getElementById('changeX').value) || 0;
+            const deltaY = parseFloat(document.getElementById('changeY').value) || 0;
+            const deltaZ = parseFloat(document.getElementById('changeZ').value) || 0;
 
-            selectedObject.position.x += x;
-            selectedObject.position.y += y;
-            selectedObject.position.z += z;
+            const newPosition = {
+                x: selectedObject.position.x + deltaX,
+                y: selectedObject.position.y + deltaY,
+                z: selectedObject.position.z + deltaZ
+            };
+
+            const objectSize = getObjectSize(selectedObject);
+            if (isPositionWithinBounds(newPosition, objectSize)) {
+                selectedObject.position.copy(newPosition);
+            } else {
+                alert('Object out of bounds');
+            }
         }
     }
 
@@ -291,8 +308,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const width = parseFloat(document.getElementById('changeWidth').value) || 1;
             const height = parseFloat(document.getElementById('changeHeight').value) || 1;
             const depth = parseFloat(document.getElementById('changeDepth').value) || 1;
-            selectedObject.scale.set(width, height, depth);
+
+            const newObjectSize = new THREE.Vector3(width, height, depth);
+
+            const newPosition = clampPosition(selectedObject.position, newObjectSize.x, newObjectSize.y, newObjectSize.z);
+
+            if (isPositionWithinBounds(newPosition, newObjectSize)) {
+                selectedObject.scale.set(width, height, depth);
+                selectedObject.position.copy(newPosition);
+            } else {
+                alert('Object out of bounds');
+            }
         }
+    }
+
+    function isPositionWithinBounds(position, size) {
+        const halfWidth = size.x / 2;
+        const halfHeight = size.y / 2;
+        const halfDepth = size.z / 2;
+
+        const minX = -cubeSize / 2 + halfWidth;
+        const maxX = cubeSize / 2 - halfWidth;
+        const minY = -cubeSize / 2 + halfHeight;
+        const maxY = cubeSize / 2 - halfHeight;
+        const minZ = -cubeSize / 2 + halfDepth;
+        const maxZ = cubeSize / 2 - halfDepth;
+
+        return (
+            position.x >= minX && position.x <= maxX &&
+            position.y >= minY && position.y <= maxY &&
+            position.z >= minZ && position.z <= maxZ
+        );
     }
 
     function changeColor(){
@@ -311,8 +357,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const rotX = parseFloat(document.getElementById('changeRotX').value) || 0;
             const rotY = parseFloat(document.getElementById('changeRotY').value) || 0;
             const rotZ = parseFloat(document.getElementById('changeRotZ').value) || 0;
+
             selectedObject.rotation.set(rotX, rotY, rotZ);
+
+            const objectSize = getObjectSize(selectedObject);
+            const newPosition = clampPosition(selectedObject.position, objectSize.x, objectSize.y, objectSize.z);
+            selectedObject.position.copy(newPosition);
         }
+    }
+
+    function getObjectSize(object) {
+        const box = new THREE.Box3().setFromObject(object);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        return size;
     }
 
     const lightTypeSelect = document.getElementById('lightType');
@@ -377,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderer.domElement.addEventListener('click', onClick, false);
     renderer.domElement.addEventListener('mousedown', onClick, false);
+
     function onClick(event) {
         event.preventDefault();
 
@@ -388,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         raycaster.setFromCamera(mouse, camera);
 
         const intersects = raycaster.intersectObjects(scene.children, true);
-
+        //const intersects = raycaster.intersectObject(selectedObject);
         if (intersects.length > 0) {
             selectedObject = intersects[0].object;
 
@@ -409,25 +468,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const moveDistance = 0.1;
 
         if (selectedObject && selectedObject !== mesh) {
+            let newX = selectedObject.position.x;
+            let newY = selectedObject.position.y;
+            let newZ = selectedObject.position.z;
+
             switch (event.key) {
                 case "ArrowLeft":
-                    selectedObject.position.x -= moveDistance;
+                    newX -= moveDistance;
                     break;
                 case "ArrowUp":
-                    selectedObject.position.z += moveDistance;
+                    newZ += moveDistance;
                     break;
                 case "ArrowRight":
-                    selectedObject.position.x += moveDistance;
+                    newX += moveDistance;
                     break;
                 case "ArrowDown":
-                    selectedObject.position.z -= moveDistance;
+                    newZ -= moveDistance;
                     break;
                 case "9":
-                    selectedObject.position.y += moveDistance;
+                    newY += moveDistance;
                     break;
                 case "3":
-                    selectedObject.position.y -= moveDistance;
+                    newY -= moveDistance;
                     break;
+            }
+
+            const newPosition = clampPosition({ x: newX, y: newY, z: newZ }, selectedObject.scale.x, selectedObject.scale.y, selectedObject.scale.z);
+
+            if (newPosition.x >= -cubeSize && newPosition.x <= cubeSize &&
+                newPosition.y >= -cubeSize && newPosition.y <= cubeSize &&
+                newPosition.z >= -cubeSize && newPosition.z <= cubeSize) {
+                selectedObject.position.set(newPosition.x, newPosition.y, newPosition.z);
             }
         } else {
             switch (event.key) {

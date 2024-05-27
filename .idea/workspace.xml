@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="feat: add model function done">
+    <list default="true" id="bf622b35-9164-4674-8863-f229826c345a" name="Changes" comment="fix: variable error fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,22 +42,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "add-model",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/luismpfranco/Desktop/3.º Ano/2.º Semestre/PA/TP/Parte3/Projeto/pa-room-design-10",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;add-model&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/luismpfranco/Desktop/3.º Ano/2.º Semestre/PA/TP/Parte3/Projeto/pa-room-design-10&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -77,7 +78,8 @@
       <workItem from="1716731450525" duration="22000" />
       <workItem from="1716731481406" duration="8745000" />
       <workItem from="1716759323424" duration="27000" />
-      <workItem from="1716759357179" duration="15411000" />
+      <workItem from="1716759357179" duration="15465000" />
+      <workItem from="1716834682546" duration="6185000" />
     </task>
     <task id="LOCAL-00001" summary="feat: add primitives almost done and added position and rotation to add primitives">
       <option name="closed" value="true" />
@@ -127,7 +129,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716821299292</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fix: variable error fixed">
+      <option name="closed" value="true" />
+      <created>1716821421731</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1716821421731</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -140,6 +150,7 @@
     <MESSAGE value="chore: Combine my code with Catarina's for testing" />
     <MESSAGE value="fix: mouse functionality fixed" />
     <MESSAGE value="feat: add model function done" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add model function done" />
+    <MESSAGE value="fix: variable error fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: variable error fixed" />
   </component>
 </project>
