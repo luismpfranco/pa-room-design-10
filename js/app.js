@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.add(meshGroup);
     objects.push(mesh);
 
+    /**
+     * Creates a mesh with the specified color
+     * @param color
+     * @returns {Mesh}
+     */
     function createMesh(color) {
         const material = new THREE.MeshBasicMaterial({ color: color });
         const vertices = new Float32Array([
@@ -78,6 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
+    /**
+     * Creates a box with the specified dimensions and color
+     * @param width
+     * @param height
+     * @param depth
+     * @param color
+     * @returns {Mesh}
+     */
     function createBox(width, height, depth, color) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshBasicMaterial({ color: color });
@@ -92,6 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return box;
     }
 
+    /**
+     * Creates a parallelepiped with the specified dimensions and color
+     * @param width
+     * @param height
+     * @param depth
+     * @param color
+     * @returns {Mesh}
+     */
     function createParallelepiped(width, height, depth, color) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshBasicMaterial({ color: color });
@@ -105,6 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return parallelepiped;
     }
 
+    /**
+     * Clamps the position of an object to the bounds of the cube
+     * @param position
+     * @param width
+     * @param height
+     * @param depth
+     * @returns {{x: number, y: number, z: number}}
+     */
     function clampPosition(position, width, height, depth) {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
@@ -131,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedObject = null;
 
+    /**
+     * Adds a primitive to the scene
+     */
     function addPrimitive() {
         if (currentPrimitives >= maxPrimitives) {
             alert('Maximum primitives');
@@ -181,6 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
         objectSelect.appendChild(option);
     }
 
+    /**
+     * Adds a model to the scene
+     * @returns {Promise<void>}
+     */
     async function addModel() {
         if (currentModels >= 5) {
             alert('Maximum models reached');
@@ -267,6 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
         objectSelect.appendChild(option);
     }
 
+    /**
+     * Removes an object from the scene
+     */
     function removeObject() {
         const selectedId = objectSelect.value;
         if(selectedId && selectedId !== mesh.id){
@@ -277,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Translates an object in the scene
+     */
     function translateObject() {
         const selectedId = objectSelect.value;
         if (selectedId && selectedId !== mesh.id) {
@@ -300,6 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Resizes an object in the scene
+     */
     function resizeObject() {
         const selectedId = objectSelect.value;
         if (selectedId && selectedId !== mesh.id) {
@@ -321,6 +366,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Checks if the position of an object is within the bounds of the cube
+     * @param position
+     * @param size
+     * @returns {boolean}
+     */
     function isPositionWithinBounds(position, size) {
         const halfWidth = size.x / 2;
         const halfHeight = size.y / 2;
@@ -340,6 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
 
+    /**
+     * Changes the color of an object in the scene
+     */
     function changeColor(){
         const selectedId = objectSelect.value;
         if(selectedId && selectedId !== mesh.id){
@@ -349,6 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     *  Rotates an object in the scene
+     */
     function rotateObject() {
         const selectedId = objectSelect.value;
         if (selectedId && selectedId !== mesh.id) {
@@ -365,6 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Returns the size of an object
+     * @param object
+     * @returns {Vector3}
+     */
     function getObjectSize(object) {
         const box = new THREE.Box3().setFromObject(object);
         const size = new THREE.Vector3();
@@ -375,6 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightTypeSelect = document.getElementById('lightType');
     const illuminationTypeSelect = document.getElementById('illuminationType');
 
+    /**
+     * Adds a light to the scene
+     */
     function addLight(){
         const lightType = lightTypeSelect.value;
         const illuminationType = illuminationTypeSelect.value
@@ -407,6 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
         applyIlluminationType(illuminationType);
     }
 
+    /**
+     * Applies the specified illumination type to the objects in the scene
+     * @param type
+     */
     function applyIlluminationType(type) {
         switch (type) {
             case 'phong':
@@ -435,6 +504,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.domElement.addEventListener('click', onClick, false);
     renderer.domElement.addEventListener('mousedown', onClick, false);
 
+    /**
+     * Handles the click event on the canvas
+     * @param event
+     */
     function onClick(event) {
         event.preventDefault();
 
@@ -465,6 +538,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Handles the key press event
+     * @param event
+     */
     function handleKeyPress(event) {
         const moveDistance = 0.1;
 
@@ -535,6 +612,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Moves the camera in the scene
+     * @param x
+     * @param y
+     * @param z
+     */
     function moveCamera(x, y, z) {
         camera.position.x += x;
         camera.position.y += y;
@@ -568,17 +651,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', handleKeyPress);
 
+    /**
+     * Renders the scene
+     */
     function render(){
         requestAnimationFrame(render);
         renderer.render(scene, camera);
     }
     render();
 
+    /**
+     * Load an obj resource from the specified location
+     * @param location
+     * @returns {Promise<string>}
+     */
     async function loadObjResource(location){
         const response = await fetch(location);
         return await response.text();
     }
 
+    /**
+     * Load an image from the specified location
+     * @param location
+     * @returns {Promise<unknown>}
+     */
     function loadImage(location) {
         return new Promise((resolve, reject) => {
             const image = new Image();
@@ -592,6 +688,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Parses an obj file
+     * @param text
+     * @returns {{normal: *[], texcoord: *[], position: *[]}}
+     */
     function parseOBJ(text) {
         const objPositions = [[0, 0, 0]];
         const objTextureCoords = [[0, 0]];
@@ -609,6 +710,10 @@ document.addEventListener('DOMContentLoaded', () => {
             [],   // normals
         ];
 
+        /**
+         * Adds a vertex to the webgl vertex data
+         * @param vert
+         */
         function addVertex(vert) {
             const ptn = vert.split('/');
             ptn.forEach((objIndexStr, i) => {
@@ -669,6 +774,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    /**
+     * Configures a texture
+     * @param image
+     * @returns {Texture}
+     */
     function configureTexture(image) {
         const texture = new THREE.Texture();
 
