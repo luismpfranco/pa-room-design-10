@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     camera.position.set(5, 0, 1);
     camera.lookAt(0, 0, 0);
 
+    let mesh = createMesh(0x808080);
+    let meshGroup = new THREE.Group();
+    meshGroup.add(mesh);
+    scene.add(meshGroup);
+    objects.push(mesh);
+
     function createMesh(color) {
         const material = new THREE.MeshBasicMaterial({ color: color });
         const vertices = new Float32Array([
@@ -168,19 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const option = document.createElement('option');
         option.value = primitive.id;
         if (type === 'cube') {
-            option.textContent = `Cube${primitive.id}`;
+            option.textContent = `Cub${primitive.id}`;
         } else if (type === 'parallelepiped') {
-            option.textContent = `Parallelepiped${primitive.id}`;
+            option.textContent = `Par${primitive.id}`;
         }
         objectSelect.appendChild(option);
     }
-
-
-    let mesh = createMesh(0x808080);
-    let meshGroup = new THREE.Group();
-    meshGroup.add(mesh);
-    scene.add(meshGroup);
-    objects.push(mesh);
 
     async function addModel() {
         if (currentModels >= 5) {
@@ -447,13 +446,15 @@ document.addEventListener('DOMContentLoaded', () => {
         raycaster.setFromCamera(mouse, camera);
 
         const intersects = raycaster.intersectObjects(scene.children, true);
-        //const intersects = raycaster.intersectObject(selectedObject);
         if (intersects.length > 0) {
             selectedObject = intersects[0].object;
 
             if (selectedObject instanceof THREE.LineSegments && selectedObject !== mesh) {
                 selectedObject = selectedObject.parent;
             }
+
+            const selectBox = document.getElementById('primitiveSelect');
+            selectBox.value = selectedObject.id;
 
             const boundingBox = new THREE.Box3().setFromObject(mesh);
             if (!boundingBox.containsPoint(selectedObject.position)) {

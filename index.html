@@ -59,8 +59,8 @@
         label{
             color: #696969;
         }
-        #resizeObject{
-            height: 60px;
+        .buttons{
+            height: auto;
         }
     </style>
 </head>
@@ -80,16 +80,16 @@
                             <option value="parallelepiped">Parallelepiped</option>
                         </select>
                     </div>
-                    <div class="a-l-p mb-2 row">
-                        <div class="col-3">
+                    <div class="a-l-p mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="width" class="form-label">Width</label>
                             <input type="text" class="form-control" id="width">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="height" class="form-label">Height</label>
                             <input type="text" class="form-control" id="height">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="depth" class="form-label">Depth</label>
                             <input type="text" class="form-control" id="depth">
                         </div>
@@ -108,16 +108,16 @@
                     <div class="mt-2">
                         <span>Position</span>
                     </div>
-                    <div class="position mb-2 row">
-                        <div class="col-3">
+                    <div class="position mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="posX" class="form-label">x</label>
                             <input type="text" class="form-control" id="posX">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="posY" class="form-label">y</label>
                             <input type="text" class="form-control" id="posY">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="posZ" class="form-label">z</label>
                             <input type="text" class="form-control" id="posZ">
                         </div>
@@ -126,21 +126,23 @@
                     <div class="mt-2">
                         <span>Rotation</span>
                     </div>
-                    <div class="rotation mb-2 row">
-                        <div class="col-3">
+                    <div class="rotation mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="rotX" class="form-label">x</label>
                             <input type="text" class="form-control" id="rotX">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="rotY" class="form-label">y</label>
                             <input type="text" class="form-control" id="rotY">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="rotZ" class="form-label">z</label>
                             <input type="text" class="form-control" id="rotZ">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary" id="addPrimitive">Add Primitive</button>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="addPrimitive">Add Primitive</button>
+                    </div>
                     <hr>
                     <div class="mb-2 d-flex">
                         <input type="file" id="file" name="file" />
@@ -148,16 +150,16 @@
                     <div class="mt-2">
                         <span>Position</span>
                     </div>
-                    <div class="position mb-2 row">
-                        <div class="col-3">
+                    <div class="position mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="posXModel" class="form-label">x</label>
                             <input type="text" class="form-control" id="posXModel">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="posYModel" class="form-label">y</label>
                             <input type="text" class="form-control" id="posYModel">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="posZModel" class="form-label">z</label>
                             <input type="text" class="form-control" id="posZModel">
                         </div>
@@ -166,147 +168,176 @@
                     <div class="mt-2">
                         <span>Rotation</span>
                     </div>
-                    <div class="rotation mb-2 row">
-                        <div class="col-3">
+                    <div class="rotation mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="rotXModel" class="form-label">x</label>
                             <input type="text" class="form-control" id="rotXModel">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="rotYModel" class="form-label">y</label>
                             <input type="text" class="form-control" id="rotYModel">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="rotZModel" class="form-label">z</label>
                             <input type="text" class="form-control" id="rotZModel">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary" id="addModel">Add Model</button>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="addModel">Add Model</button>
+                    </div>
                 </div>
                 <div class="col-4 line1">
-                    <div class="input-group mb-2">
-                        <h5>Manipulate object</h5>
+                    <h5 class="mb-3">Manipulate object</h5>
+                    <div class="input-group mb-2 row justify-content-center ml-0">
                         <label for="primitiveSelect" class="form-label"></label>
                         <select class="form-select" id="primitiveSelect">
                             <option value="">Select an object</option>
                         </select>
                     </div>
-                    <div class="">
-                        <button type="button" class="btn btn-primary" id="removeObject">Remove</button>
-                        <div class="changePosition mt-2 row">
-                            <div class="col-3">
-                                <label for="changeX" class="form-label">x</label>
-                                <input type="text" class="form-control" id="changeX">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeY" class="form-label">y</label>
-                                <input type="text" class="form-control" id="changeY">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeZ" class="form-label">z</label>
-                                <input type="text" class="form-control" id="changeZ">
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="translateObject">Translate</button>
-                        <div class="changeSize mt-2 row">
-                            <div class="col-3">
-                                <label for="changeWidth" class="form-label">Width</label>
-                                <input type="text" class="form-control" id="changeWidth">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeHeight" class="form-label">Height</label>
-                                <input type="text" class="form-control" id="changeHeight">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeDepth" class="form-label">Depth</label>
-                                <input type="text" class="form-control" id="changeDepth">
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="resizeObject">Resize</button>
-                        <div class="col-4 mt-2">
-                            <input type="color" class="form-control form-control-color" id="changeColorInput" value="#ff0000" title="Choose your color">
-                        </div>
-                        <button type="button" class="btn btn-primary" id="changeColor">Change Color</button>
-                        <div class="changeRotation mt-2 row">
-                            <div class="col-3">
-                                <label for="changeRotX" class="form-label">x</label>
-                                <input type="text" class="form-control" id="changeRotX">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeRotY" class="form-label">y</label>
-                                <input type="text" class="form-control" id="changeRotY">
-                            </div>
-                            <div class="col-3">
-                                <label for="changeRotZ" class="form-label">z</label>
-                                <input type="text" class="form-control" id="changeRotZ">
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="rotateObject">Rotate</button>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="removeObject">Remove</button>
                     </div>
+                    <hr>
+                    <div class="">
+                        <span>Position</span>
+                    </div>
+                    <div class="changePosition row justify-content-center">
+                        <div class="mr-2">
+                            <label for="changeX" class="form-label">x</label>
+                            <input type="text" class="form-control" id="changeX">
+                        </div>
+                        <div class="mr-2">
+                            <label for="changeY" class="form-label">y</label>
+                            <input type="text" class="form-control" id="changeY">
+                        </div>
+                        <div class="">
+                            <label for="changeZ" class="form-label">z</label>
+                            <input type="text" class="form-control" id="changeZ">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="translateObject">Translate</button>
+                    </div>
+                    <hr>
+                    <div class="changeSize row justify-content-center">
+                        <div class="mr-2">
+                            <label for="changeWidth" class="form-label">Width</label>
+                            <input type="text" class="form-control" id="changeWidth">
+                        </div>
+                        <div class="mr-2">
+                            <label for="changeHeight" class="form-label">Height</label>
+                            <input type="text" class="form-control" id="changeHeight">
+                        </div>
+                        <div class="">
+                            <label for="changeDepth" class="form-label">Depth</label>
+                            <input type="text" class="form-control" id="changeDepth">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="resizeObject">Resize</button>
+                    </div>
+                    <hr>
+                    <div class="row justify-content-center">
+                        <input type="color" class="form-control form-control-color" id="changeColorInput" value="#ff0000" title="Choose your color">
+                    </div>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="changeColor">Change Color</button>
+                    </div>
+                    <hr>
+                    <div class="">
+                        <span>Rotation</span>
+                    </div>
+                    <div class="changeRotation row justify-content-center">
+                        <div class="mr-2">
+                            <label for="changeRotX" class="form-label">x</label>
+                            <input type="text" class="form-control" id="changeRotX">
+                        </div>
+                        <div class="mr-2">
+                            <label for="changeRotY" class="form-label">y</label>
+                            <input type="text" class="form-control" id="changeRotY">
+                        </div>
+                        <div class="">
+                            <label for="changeRotZ" class="form-label">z</label>
+                            <input type="text" class="form-control" id="changeRotZ">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons" id="rotateObject">Rotate</button>
+                    </div>
+
                 </div>
 
                 <div class="col-4">
                     <label for="lightType">Light Type</label>
-                    <select class="form-select" id="lightType">
+                    <select class="form-select mt-1" id="lightType">
                         <option value="ambient">Ambient Light</option>
                         <option value="directional">Directional Light</option>
                     </select>
 
-                    <label for="illuminationType" class="mt-2">Illumination Type</label>
-                    <select class="form-select" id="illuminationType">
+                    <label for="illuminationType" class="mt-3">Illumination Type</label>
+                    <select class="form-select mt-2" id="illuminationType">
                         <option value="phong">Phong</option>
                         <option value="ambient">Ambient</option>
                         <option value="diffuse">Diffuse</option>
                         <option value="specular">Specular</option>
                     </select>
 
-                    <span>Position</span>
-                    <div class="p-d-c mb-2 row">
-                        <div class="col-3">
+                    <div class="mt-4">
+                        <span>Position</span>
+                    </div>
+                    <div class="p-d-c mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="lightPosX" class="form-label">x</label>
                             <input type="text" class="form-control" id="lightPosX">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="lightPosY" class="form-label">y</label>
                             <input type="text" class="form-control" id="lightPosY">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="lightPosZ" class="form-label">z</label>
                             <input type="text" class="form-control" id="lightPosZ">
                         </div>
                     </div>
 
-                    <span>Direction</span>
-                    <div class="p-d-c mb-2 row">
-                        <div class="col-3">
+                    <div class="mt-4">
+                        <span>Direction</span>
+                    </div>
+                    <div class="p-d-c mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="lightDirX" class="form-label">x</label>
                             <input type="text" class="form-control" id="lightDirX">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="lightDirY" class="form-label">y</label>
                             <input type="text" class="form-control" id="lightDirY">
                         </div>
-                        <div class="col-3">
+                        <div class="">
                             <label for="lightDirZ" class="form-label">z</label>
                             <input type="text" class="form-control" id="lightDirZ">
                         </div>
                     </div>
 
-                    <span>Color</span>
-                    <div class="p-d-c mb-2 row">
-                        <div class="col-3">
+                    <div class="mt-4">
+                        <span>Color</span>
+                    </div>
+                    <div class="p-d-c mb-2 row justify-content-center">
+                        <div class="mr-2">
                             <label for="lightColorR" class="form-label">R</label>
                             <input type="text" class="form-control" id="lightColorR">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="lightColorG" class="form-label">G</label>
                             <input type="text" class="form-control" id="lightColorG">
                         </div>
-                        <div class="col-3">
+                        <div class="mr-2">
                             <label for="lightColorB" class="form-label">B</label>
                             <input type="text" class="form-control" id="lightColorB">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary mt-2" id="addLight">Add Light</button>
+                    <div class="row justify-content-center">
+                        <button type="button" class="btn btn-primary buttons mt-3" id="addLight">Add Light</button>
+                    </div>
                 </div>
             </div>
         </div>
